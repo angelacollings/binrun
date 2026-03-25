@@ -38,10 +38,57 @@ BinRun handles the **movement of bins**, not the waste collection itself.
 
 ## Tech Stack
 
-- Next.js (React framework)
+- Next.js 16 with TypeScript (frontend + backend)
 - Node.js
 - PostgreSQL
 - Stripe (payments)
+
+---
+
+## Prerequisites
+
+- Node.js v18 or later
+- npm v9 or later
+
+---
+
+## Getting Started
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/angelacollings/binrun.git
+   cd binrun
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+4. **Build for production**
+
+   ```bash
+   npm run build
+   npm run start
+   ```
+
+---
+
+## Code Quality
+
+- **Lint**: `npm run lint`
+- **Format**: `npm run format`
+- **Check formatting**: `npm run format:check`
 
 ---
 
