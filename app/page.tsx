@@ -12,3 +12,5 @@ export default function Home() {
     </div>
   );
 }
+
+console.log(process.env.NEXTAUTH_URL);
