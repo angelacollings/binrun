@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "db:up": "docker compose up -d db && docker compose exec -T db sh -c 'until pg_isready -U postgres -d binrun; do sleep 1; done'",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d db && docker compose exec -T db sh -c 'until pg_isready -U postgres -d binrun; do sleep 1; done'",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "dev:local": "npm run db:up && npm run db:deploy && npm run db:generate && next dev",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
