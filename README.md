@@ -123,34 +123,53 @@ Our goal is to make bin day hassle-free for everyone in Whangarei. We plan to ex
    npm install
    ```
 
-3. Configure environment variables by copying `.env.example` to `.env.local`
-4. Set up the database:
+3. Configure environment variables by copying `.env.example` to `.env`
+4. Start local development (database + app):
 
    ```bash
-   npm run db:migrate
+   npm run dev:local
    ```
+
+### Environment Variables
+
+- Store secrets in `.env`
+- Keep `.env.example` with placeholder values only
+
+Prisma 7 reads the database connection from `prisma.config.ts`, not from `prisma/schema.prisma`.
+
+Current load order in `prisma.config.ts`:
+
+1. Existing environment variables already provided by the shell or hosting platform
+2. `.env`
+
+In production, the recommended setup is to configure environment variables in the hosting platform instead of deploying `.env`.
 
 ---
 
 ### Available Scripts
 
-- `npm run dev` — Start development server (localhost:3000)
+- `npm run dev` — Start development server only (localhost:3000)
+- `npm run dev:local` — Start local Postgres, apply migrations, generate Prisma client, and run app
 - `npm run build` — Build for production
 - `npm run start` — Start production server
 - `npm run lint` — Run ESLint checks
-- `npm run test` — Run tests
-- `npm run db:migrate` — Run database migrations
+- `npm run db:up` — Start local Postgres container
+- `npm run db:down` — Stop local Postgres container
+- `npm run db:reset` — Recreate local Postgres volume from scratch
+- `npm run db:migrate` — Create/apply development migrations
+- `npm run db:deploy` — Apply committed migrations
+- `npm run db:generate` — Generate Prisma client
 
 ---
 
 ### Project Structure
 
 ```
-src/
-├── pages/           # Next.js page routes and API routes
-├── lib/             # Shared utilities and helpers
-├── components/      # Reusable React components
-└── middleware.ts    # Request middleware
+app/      # Next.js app router pages, layouts, and styles
+docs/     # Product notes, architecture diagrams, and mockups
+prisma/   # Prisma schema and future migrations
+public/   # Static assets served by the app
+docker-compose.yml  # Local Postgres service for development
 ```
 
 ---
@@ -158,5 +177,5 @@ src/
 ### Notes
 
 - This project uses Next.js with server-side rendering
-- Database migrations run automatically on `npm run dev`
+- Local DB + app startup is automated via `npm run dev:local`
 - Review the docs in `node_modules/next/dist/docs/` for API changes and deprecation notices
