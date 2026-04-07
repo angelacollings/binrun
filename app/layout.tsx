@@ -11,6 +11,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // if (process.env.NODE_ENV === 'development') {
+  //   throw new Error('Global error smoke test');
+  // }
   return (
     <html lang="en">
       <body>{children}</body>
