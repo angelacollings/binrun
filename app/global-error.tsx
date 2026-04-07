@@ -7,10 +7,10 @@ import './globals.css';
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  reset: () => void;
 };
 
-export default function GlobalError({ error, unstable_retry }: GlobalErrorProps) {
+export default function GlobalError({ error, reset }: GlobalErrorProps) {
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -32,7 +32,7 @@ export default function GlobalError({ error, unstable_retry }: GlobalErrorProps)
               <button
                 className={styles.primaryAction}
                 type="button"
-                onClick={() => unstable_retry()}
+                onClick={() => reset()}
               >
                 Try again
               </button>
