@@ -4,9 +4,9 @@
  * This page intentionally throws an error to test the global error boundary.
  * Used by Playwright E2E tests to verify the failsafe UI renders correctly.
  *
- * - Returns 404 in production (safe guard)
+ * - Returns 404 in production as a runtime safeguard
  * - Only useful during development
- * - Removed from production builds automatically
+ * - Still present in production builds; access is blocked by the 404 guard
  *
  * @see tests/global-error.spec.ts for the corresponding test
  */
