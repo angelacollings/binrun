@@ -3,17 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "db:up": "docker compose up -d db && docker compose exec -T db sh -c 'until pg_isready -U postgres -d binrun; do sleep 1; done'",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d db && docker compose exec -T db sh -c 'until pg_isready -U postgres -d binrun; do sleep 1; done'",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "dev:local": "npm run db:up && npm run db:deploy && npm run db:generate && next dev",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "next": "16.2.1",
+    "pg": "^8.20.0",
+    "prisma": "^7.5.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
