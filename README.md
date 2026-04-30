@@ -39,20 +39,29 @@ BinRun handles the **movement of bins**, not the waste collection itself.
 ## Tech Stack
 
 - Next.js 16 with TypeScript (frontend + backend)
-- Node.js
-- PostgreSQL
+- Node.js 24
+- MySQL 8.4
 - Stripe (payments)
+
+**Note**: Docker configuration is development-only. Production uses SiteHost's managed MySQL container.
 
 ---
 
 ## Prerequisites
 
-- Node.js v18 or later
+- Node.js v24 or later
 - npm v9 or later
+- MySQL 8.4 for local container development (optional, see Development section)
 
----
+## Production Deployment
 
-## Getting Started
+This application is designed for deployment on SiteHost Cloud Containers:
+
+- **Node.js**: v24 (managed by the SiteHost Nginx + NodeJS24 container)
+- **MySQL**: v8.4 (provisioned through SiteHost control panel)
+- **No Docker required** - SiteHost handles containerization
+
+## Local Development
 
 1. **Clone the repository**
 
@@ -108,9 +117,9 @@ Our goal is to make bin day hassle-free for everyone in Whangarei. We plan to ex
 
 ### Prerequisites
 
-- Node.js 18.x or higher
+- Node.js 24.x
 - npm 9.x or higher
-- PostgreSQL 14+
+- MySQL 8.4
 
 ---
 
@@ -149,13 +158,14 @@ In production, the recommended setup is to configure environment variables in th
 ### Available Scripts
 
 - `npm run dev` — Start development server only (localhost:3000)
-- `npm run dev:local` — Start local Postgres, apply migrations, generate Prisma client, and run app
-- `npm run build` — Build for production
+- `npm run dev:local` — Start local MySQL, apply migrations, generate Prisma client, and run app
+- `npm run build` — Generate Prisma Client and build for production
 - `npm run start` — Start production server
+- `npm run deploy:prepare` — Apply committed migrations, generate Prisma Client, and build for deployment
 - `npm run lint` — Run ESLint checks
-- `npm run db:up` — Start local Postgres container
-- `npm run db:down` — Stop local Postgres container
-- `npm run db:reset` — Recreate local Postgres volume from scratch
+- `npm run db:up` — Start local MySQL container
+- `npm run db:down` — Stop local MySQL container
+- `npm run db:reset` — Recreate local MySQL volume from scratch
 - `npm run db:migrate` — Create/apply development migrations
 - `npm run db:deploy` — Apply committed migrations
 - `npm run db:generate` — Generate Prisma client
@@ -169,7 +179,7 @@ app/      # Next.js app router pages, layouts, and styles
 docs/     # Product notes, architecture diagrams, and mockups
 prisma/   # Prisma schema and future migrations
 public/   # Static assets served by the app
-docker-compose.yml  # Local Postgres service for development
+docker-compose.yml  # Local MySQL service for development
 ```
 
 ---

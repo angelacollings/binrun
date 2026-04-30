@@ -2,9 +2,9 @@
 
 ```mermaid
 graph TD
-User -->|HTTPS| App[SvelteKit App Node.js Container]
+User -->|HTTPS| App[Next.js App NodeJS24 Container]
 
-    App --> DB[(PostgreSQL Database)]
+    App --> DB[(MySQL Database)]
     App --> StripeAPI[Stripe API]
 
     App --> Logs[SiteHost Logging]

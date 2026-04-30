@@ -8,10 +8,8 @@ graph TD
     BinRun[BinRun System]
     Stripe[Stripe]
     SiteHost[SiteHost Containers]
-    Council[Council Collection]
 
     User --> BinRun
     BinRun --> Stripe
     BinRun --> SiteHost
-    BinRun --> Council
 ```
