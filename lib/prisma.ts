@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -15,7 +16,9 @@ function getPrismaClient(): PrismaClient {
     throw new Error('DATABASE_URL is required to initialize Prisma Client.');
   }
 
+  const adapter = new PrismaMariaDb(connectionString);
   const client = new PrismaClient({
+    adapter,
     log: ['warn', 'error'],
   });
 
