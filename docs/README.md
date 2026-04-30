@@ -21,6 +21,12 @@ Documentation for the BinRun system, including architecture and design.
 
 ---
 
+## Deployment
+
+- [SiteHost Deployment Runbook](./deployment/sitehost.md)
+
+---
+
 ## Vision
 
 - [Project Vision](../vision.md)
