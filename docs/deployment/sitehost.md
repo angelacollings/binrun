@@ -65,6 +65,7 @@ Required now:
 ```txt
 NODE_ENV=production
 DATABASE_URL=mysql://...
+AUTH_SECRET=...
 NEXTAUTH_URL=https://binrun.co.nz
 NEXTAUTH_SECRET=...
 ```
@@ -76,6 +77,26 @@ Example shape only:
 ```txt
 DATABASE_URL=mysql://DB_USER:URL_ENCODED_DB_PASSWORD@mysql8:3306/DB_NAME
 ```
+
+Required later, once the related features are implemented:
+
+```txt
+STRIPE_SECRET_KEY=...
+STRIPE_WEBHOOK_SECRET=...
+EMAIL_FROM=admin@binrun.co.nz
+SMTP_HOST=...
+SMTP_PORT=...
+SMTP_USER=...
+SMTP_PASSWORD=...
+```
+
+Local development uses `.env`. The committed `.env.example` contains placeholders only and must not contain real credentials.
+
+Required config behavior:
+
+- Missing `DATABASE_URL` fails clearly before Prisma Client initialization.
+- Server logs may include safe error diagnostics.
+- Server logs must not include raw secret values or a full database connection string.
 
 ## GitHub Access From SiteHost
 
@@ -175,6 +196,8 @@ tail -n 120 /container/logs/supervisor/nodejs-stdout.log
 tail -n 120 /container/logs/supervisor/supervisord.log
 ```
 
+SiteHost also exposes container logs in the control panel. Use the log files above for the fastest SSH diagnosis when deploys fail.
+
 ## Verification
 
 Verify from a browser:
@@ -218,4 +241,3 @@ Return to `main` after the incident is resolved:
 git checkout main
 git pull
 ```
-
