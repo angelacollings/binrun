@@ -3,28 +3,41 @@
 ```mermaid
 erDiagram
 USERS {
-id UUID
+id CUID
 email TEXT
-password_hash TEXT
+name TEXT
+email_verified DATETIME
+image TEXT
 }
 
     PROPERTIES {
-        id UUID
-        user_id UUID
-        address TEXT
+        id CUID
+        user_id CUID
+        label TEXT
+        address_line_1 TEXT
+        address_line_2 TEXT
+        suburb TEXT
+        city TEXT
+        postcode TEXT
+        collection_notes TEXT
     }
 
     BINS {
-        id UUID
-        property_id UUID
-        type TEXT
+        id CUID
+        property_id CUID
+        type BIN_TYPE
+        label TEXT
+        collection_day COLLECTION_DAY
     }
 
     SUBSCRIPTIONS {
-        id UUID
-        user_id UUID
-        status TEXT
-        stripe_id TEXT
+        id CUID
+        user_id CUID
+        status SUBSCRIPTION_STATUS
+        stripe_customer_id TEXT
+        stripe_subscription_id TEXT
+        current_period_end DATETIME
+        canceled_at DATETIME
     }
 
     USERS ||--o{ PROPERTIES : owns
