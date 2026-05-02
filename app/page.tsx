@@ -7,7 +7,10 @@ export default function Home() {
         <div className={styles.intro}>
           <span className={styles.kicker}>Coming Soon</span>
           <h1>BinRun</h1>
-          <p>Getting your bins to the roadside, back again, and cleaned — launching soon.</p>
+          <p>
+            <strong>Bin day? Sorted.</strong> We take your bins to the roadside and return them
+            after collection.
+          </p>
         </div>
       </main>
     </div>

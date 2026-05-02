@@ -10,11 +10,83 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String?  @unique
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
   emailVerified DateTime?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  image         String?
+  properties    Property[]
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Property {
+  id              String   @id @default(cuid())
+  userId          String
+  label           String?
+  addressLine1    String
+  addressLine2    String?
+  suburb          String?
+  city            String   @default("Whangarei")
+  postcode        String?
+  collectionNotes String?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bins            Bin[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Bin {
+  id            String         @id @default(cuid())
+  propertyId    String
+  type          BinType
+  label         String?
+  collectionDay CollectionDay?
+  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([propertyId])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  status               SubscriptionStatus @default(PENDING)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  currentPeriodEnd     DateTime?
+  canceledAt           DateTime?
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+enum BinType {
+  RECYCLING_BINS
+  RUBBISH_WHEELIE
+  GREEN_WASTE_WHEELIE
+}
+
+enum CollectionDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
 }
