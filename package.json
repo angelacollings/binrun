@@ -12,6 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
+    "db:seed": "prisma db seed",
     "dev:local": "npm run db:up && npm run db:deploy && npm run db:generate && next dev",
     "dev": "next dev",
     "prebuild": "prisma generate",

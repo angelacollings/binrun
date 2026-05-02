@@ -68,9 +68,9 @@ model Subscription {
 }
 
 enum BinType {
-  RECYCLING
-  RUBBISH_BAG
-  GREEN_WHEELIE
+  RECYCLING_BINS
+  RUBBISH_WHEELIE
+  GREEN_WASTE_WHEELIE
 }
 
 enum CollectionDay {

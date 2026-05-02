@@ -1,5 +1,9 @@
 # Data Model
 
+`BIN_TYPE` values are `RECYCLING_BINS`, `RUBBISH_WHEELIE`, and
+`GREEN_WASTE_WHEELIE`. Red and blue recycling bins are modeled as one service
+item because they go out together.
+
 ```mermaid
 erDiagram
 USERS {
