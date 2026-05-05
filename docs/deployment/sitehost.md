@@ -18,7 +18,7 @@ Do not commit private keys, passwords, full secret values, or raw database URLs 
 Known good public health response:
 
 ```json
-{"ok":true}
+{ "ok": true }
 ```
 
 ## DNS
