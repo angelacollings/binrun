@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
+import { getDatabaseEnv } from '@/lib/env';
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
@@ -10,19 +12,15 @@ function getPrismaClient(): PrismaClient {
     return globalForPrisma.prisma;
   }
 
-  const connectionString = process.env.DATABASE_URL;
+  const { databaseUrl, nodeEnv } = getDatabaseEnv();
 
-  if (!connectionString) {
-    throw new Error('DATABASE_URL is required to initialize Prisma Client.');
-  }
-
-  const adapter = new PrismaMariaDb(connectionString);
+  const adapter = new PrismaMariaDb(databaseUrl);
   const client = new PrismaClient({
     adapter,
     log: ['warn', 'error'],
   });
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (nodeEnv !== 'production') {
     globalForPrisma.prisma = client;
   }
 

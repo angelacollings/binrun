@@ -65,6 +65,11 @@ Required now:
 ```txt
 NODE_ENV=production
 DATABASE_URL=mysql://...
+```
+
+Required when auth routes are enabled:
+
+```txt
 AUTH_SECRET=...
 NEXTAUTH_URL=https://binrun.co.nz
 NEXTAUTH_SECRET=...
@@ -78,11 +83,16 @@ Example shape only:
 DATABASE_URL=mysql://DB_USER:URL_ENCODED_DB_PASSWORD@mysql8:3306/DB_NAME
 ```
 
-Required later, once the related features are implemented:
+Required when payments are implemented:
 
 ```txt
 STRIPE_SECRET_KEY=...
 STRIPE_WEBHOOK_SECRET=...
+```
+
+Required when email/notification features are implemented:
+
+```txt
 EMAIL_FROM=admin@binrun.co.nz
 SMTP_HOST=...
 SMTP_PORT=...
@@ -95,6 +105,9 @@ Local development uses `.env`. The committed `.env.example` contains placeholder
 Required config behavior:
 
 - Missing `DATABASE_URL` fails clearly before Prisma Client initialization.
+- Missing required subsystem vars fail clearly when that subsystem reads config.
+- Production placeholder secret values fail validation.
+- Secret-like `NEXT_PUBLIC_` names fail validation because public values are bundled into browser JavaScript.
 - Server logs may include safe error diagnostics.
 - Server logs must not include raw secret values or a full database connection string.
 

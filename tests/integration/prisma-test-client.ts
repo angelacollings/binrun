@@ -3,15 +3,13 @@ import 'dotenv/config';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 
-export function createPrismaTestClient() {
-  const connectionString = process.env.DATABASE_URL;
+import { getDatabaseEnv } from '../../lib/env';
 
-  if (!connectionString) {
-    throw new Error('DATABASE_URL is required to run integration tests.');
-  }
+export function createPrismaTestClient() {
+  const { databaseUrl } = getDatabaseEnv();
 
   return new PrismaClient({
-    adapter: new PrismaMariaDb(connectionString),
+    adapter: new PrismaMariaDb(databaseUrl),
     log: ['warn', 'error'],
   });
 }

@@ -3,34 +3,32 @@ import 'dotenv/config';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 
+import { getDatabaseEnv } from '../lib/env.mjs';
+
 const sampleEmails = ['angela@example.com', 'sam@example.com'];
 const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
 
-function assertSafeSeedTarget(connectionString) {
-  if (process.env.NODE_ENV === 'production') {
+function assertSafeSeedTarget({ databaseUrl, nodeEnv }) {
+  if (nodeEnv === 'production') {
     throw new Error('Refusing to seed while NODE_ENV=production.');
   }
 
-  const databaseUrl = new URL(connectionString);
+  const parsedDatabaseUrl = new URL(databaseUrl);
 
-  if (!localSeedHosts.has(databaseUrl.hostname)) {
+  if (!localSeedHosts.has(parsedDatabaseUrl.hostname)) {
     throw new Error(
-      `Refusing to seed non-local database host "${databaseUrl.hostname}". Use a local/test database.`
+      `Refusing to seed non-local database host "${parsedDatabaseUrl.hostname}". Use a local/test database.`
     );
   }
 }
 
 function getPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  const databaseEnv = getDatabaseEnv();
 
-  if (!connectionString) {
-    throw new Error('DATABASE_URL is required to seed the database.');
-  }
-
-  assertSafeSeedTarget(connectionString);
+  assertSafeSeedTarget(databaseEnv);
 
   return new PrismaClient({
-    adapter: new PrismaMariaDb(connectionString),
+    adapter: new PrismaMariaDb(databaseEnv.databaseUrl),
     log: ['warn', 'error'],
   });
 }
