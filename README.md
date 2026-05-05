@@ -143,6 +143,8 @@ Our goal is to make bin day hassle-free for everyone in Whangarei. We plan to ex
 
 - Store secrets in `.env`
 - Keep `.env.example` with placeholder values only
+- Server-only config is validated in `lib/env.ts`
+- Do not expose secrets with `NEXT_PUBLIC_`; those values are bundled into browser JavaScript
 
 Prisma 7 reads the database connection from `prisma.config.ts`, not from `prisma/schema.prisma`.
 
@@ -152,6 +154,24 @@ Current load order in `prisma.config.ts`:
 2. `.env`
 
 In production, the recommended setup is to configure environment variables in the hosting platform instead of deploying `.env`.
+
+Current validation behavior:
+
+- `DATABASE_URL` is required before Prisma connects.
+- Auth, Stripe, and email settings are validated when their subsystem reads them.
+- Production rejects placeholder secret values.
+- Build/startup rejects secret-like `NEXT_PUBLIC_` variable names.
+
+Current requirement groups:
+
+- Required now: `DATABASE_URL`
+- Required when auth lands: `AUTH_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Required when notifications land: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
+
+The env implementation has a JavaScript core (`lib/env.mjs`) plus typed TypeScript
+wrapper (`lib/env.ts`) so direct Node scripts like `prisma/seed.mjs` can share the
+same validation without adding a script transpilation step.
 
 ---
 
@@ -169,6 +189,8 @@ In production, the recommended setup is to configure environment variables in th
 - `npm run db:migrate` — Create/apply development migrations
 - `npm run db:deploy` — Apply committed migrations
 - `npm run db:generate` — Generate Prisma client
+- `npm run test:unit` — Run fast unit tests
+- `npm run test:integration` — Run database-backed integration tests
 
 ### Local Database Reset And Seed
 

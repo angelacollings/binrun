@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
 
+import { assertNoPublicRuntimeSecrets } from './lib/env';
+
+assertNoPublicRuntimeSecrets();
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   async headers() {

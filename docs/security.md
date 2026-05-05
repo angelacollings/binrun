@@ -6,6 +6,8 @@ Update it whenever a feature adds a new route, API, integration, secret, or admi
 ## Current Baseline
 
 - [x] Local secrets are ignored with `.env*`; `.env.example` keeps placeholders only.
+- [x] Server-side environment validation is centralized in `lib/env.ts`.
+- [x] Secret-like `NEXT_PUBLIC_` environment variable names are rejected at startup/build.
 - [x] Prisma uses a server-only MariaDB adapter and requires `DATABASE_URL` before database access.
 - [x] Database health checks return a generic public error message.
 - [x] Seed data refuses to run in `NODE_ENV=production`.
@@ -37,6 +39,8 @@ Update it whenever a feature adds a new route, API, integration, secret, or admi
 - [ ] Mutations are protected against duplicate submission where repeated requests could cause harm.
 - [ ] New secrets are documented in `.env.example` with placeholder values only.
 - [ ] Browser-exposed environment variables use `NEXT_PUBLIC_` only when they are intentionally public.
+- [ ] New subsystems read config through `lib/env.ts` instead of direct `process.env` access.
+- [ ] If a script runner such as `tsx` is adopted, consider collapsing `lib/env.mjs` and `lib/env.ts` into one TypeScript source.
 - [ ] Logs are useful for operations but avoid passwords, tokens, full webhook payloads, and personal notes.
 - [ ] Payment and webhook code has explicit tests for signature, idempotency, and invalid-state handling.
 
