@@ -4,6 +4,21 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 
 const sampleEmails = ['angela@example.com', 'sam@example.com'];
+const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
+
+function assertSafeSeedTarget(connectionString) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing to seed while NODE_ENV=production.');
+  }
+
+  const databaseUrl = new URL(connectionString);
+
+  if (!localSeedHosts.has(databaseUrl.hostname)) {
+    throw new Error(
+      `Refusing to seed non-local database host "${databaseUrl.hostname}". Use a local/test database.`
+    );
+  }
+}
 
 function getPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
@@ -11,6 +26,8 @@ function getPrismaClient() {
   if (!connectionString) {
     throw new Error('DATABASE_URL is required to seed the database.');
   }
+
+  assertSafeSeedTarget(connectionString);
 
   return new PrismaClient({
     adapter: new PrismaMariaDb(connectionString),

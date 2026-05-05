@@ -12,9 +12,6 @@ export async function GET() {
   } catch (error) {
     console.error('Database health check failed:', error);
 
-    return NextResponse.json(
-      { ok: false, error: 'Database health check failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: 'Database health check failed' }, { status: 500 });
   }
 }

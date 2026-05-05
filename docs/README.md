@@ -27,6 +27,13 @@ Documentation for the BinRun system, including architecture and design.
 
 ---
 
+## Launch Quality
+
+- [Security Baseline](./security.md)
+- [Accessibility and UX Baseline](./accessibility.md)
+
+---
+
 ## Vision
 
-- [Project Vision](../vision.md)
+- [Project Vision](./vision.md)

@@ -170,6 +170,22 @@ In production, the recommended setup is to configure environment variables in th
 - `npm run db:deploy` — Apply committed migrations
 - `npm run db:generate` — Generate Prisma client
 
+### Local Database Reset And Seed
+
+Use this flow when you need a clean local database with sample customers,
+properties, bins, and subscriptions:
+
+```bash
+npm run db:reset
+npm run db:deploy
+npm run db:generate
+npm run db:seed
+npm run test:integration
+```
+
+The seed script is for local/test data only. It refuses to run in production and
+refuses non-local database hosts by default.
+
 ---
 
 ### Project Structure
