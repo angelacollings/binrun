@@ -13,6 +13,7 @@ email TEXT
 name TEXT
 email_verified DATETIME
 image TEXT
+role USER_ROLE
 }
 
     ACCOUNTS {

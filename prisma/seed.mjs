@@ -5,7 +5,9 @@ import { PrismaClient } from '@prisma/client';
 
 import { getDatabaseEnv } from '../lib/env.mjs';
 
-const sampleEmails = ['angela@example.com', 'sam@example.com'];
+const sampleCustomerEmails = ['angela@example.com', 'sam@example.com'];
+const sampleStaffEmails = ['worker@example.com', 'admin@example.com'];
+const sampleEmails = [...sampleCustomerEmails, ...sampleStaffEmails];
 const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
 
 function assertSafeSeedTarget({ databaseUrl, nodeEnv }) {
@@ -103,6 +105,7 @@ async function main() {
         email: 'angela@example.com',
         emailVerified: new Date(),
         name: 'Angela Collings',
+        role: 'CUSTOMER',
         subscriptions: {
           create: {
             status: 'ACTIVE',
@@ -176,6 +179,7 @@ async function main() {
         email: 'sam@example.com',
         emailVerified: new Date(),
         name: 'Sam Taylor',
+        role: 'CUSTOMER',
         subscriptions: {
           create: {
             status: 'PENDING',
@@ -209,7 +213,27 @@ async function main() {
       },
     });
 
-    console.log(`Seeded ${sampleEmails.length} users with properties, bins, and subscriptions.`);
+    await prisma.user.create({
+      data: {
+        email: 'worker@example.com',
+        emailVerified: new Date(),
+        name: 'BinRun Worker',
+        role: 'WORKER',
+      },
+    });
+
+    await prisma.user.create({
+      data: {
+        email: 'admin@example.com',
+        emailVerified: new Date(),
+        name: 'BinRun Admin',
+        role: 'ADMIN',
+      },
+    });
+
+    console.log(
+      `Seeded ${sampleCustomerEmails.length} customers and ${sampleStaffEmails.length} staff users.`
+    );
   } finally {
     await prisma.$disconnect();
   }

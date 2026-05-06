@@ -37,14 +37,28 @@ describe('environment validation', () => {
     expect(
       getAuthEnv({
         AUTH_SECRET: 'production-auth-secret',
-        NEXTAUTH_SECRET: 'production-nextauth-secret',
-        NEXTAUTH_URL: 'https://binrun.co.nz',
+        AUTH_TRUST_HOST: 'true',
+        AUTH_URL: 'https://binrun.co.nz',
         NODE_ENV: 'production',
       })
     ).toMatchObject({
-      nextAuthUrl: 'https://binrun.co.nz',
+      authTrustHost: true,
+      authUrl: 'https://binrun.co.nz',
       nodeEnv: 'production',
       secureCookies: true,
+    });
+  });
+
+  it('allows auth URL to be supplied by the hosting request context', () => {
+    expect(
+      getAuthEnv({
+        AUTH_SECRET: 'production-auth-secret',
+        NODE_ENV: 'production',
+      })
+    ).toMatchObject({
+      authTrustHost: false,
+      authUrl: undefined,
+      nodeEnv: 'production',
     });
   });
 
