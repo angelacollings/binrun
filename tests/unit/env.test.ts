@@ -12,11 +12,11 @@ describe('environment validation', () => {
   it('returns database config for a valid local database URL', () => {
     expect(
       getDatabaseEnv({
-        DATABASE_URL: 'mysql://binrun:binrun-local@localhost:3306/binrun',
+        DATABASE_URL: 'mysql://binrun:binrun-local@127.0.0.1:3306/binrun',
         NODE_ENV: 'development',
       })
     ).toEqual({
-      databaseUrl: 'mysql://binrun:binrun-local@localhost:3306/binrun',
+      databaseUrl: 'mysql://binrun:binrun-local@127.0.0.1:3306/binrun',
       nodeEnv: 'development',
     });
   });
@@ -60,6 +60,15 @@ describe('environment validation', () => {
       authUrl: undefined,
       nodeEnv: 'production',
     });
+  });
+
+  it('trusts local auth hosts outside production', () => {
+    expect(
+      getAuthEnv({
+        AUTH_SECRET: 'local-auth-secret',
+        NODE_ENV: 'development',
+      }).authTrustHost
+    ).toBe(true);
   });
 
   it('rejects placeholder values in production secrets', () => {

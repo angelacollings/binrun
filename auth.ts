@@ -1,10 +1,10 @@
 import NextAuth from 'next-auth';
-import Nodemailer from 'next-auth/providers/nodemailer';
 import type { UserRole } from '@prisma/client';
+import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { createTransport } from 'nodemailer';
 
-import { getAuthEnv, getEmailEnv } from '@/lib/env';
+import { getAuthEnv } from '@/lib/env';
+import { loginSchema, verifyPassword } from '@/lib/auth/password';
 import { prisma } from '@/lib/prisma';
 
 const authEnv = getAuthEnv();
@@ -12,46 +12,81 @@ const authEnv = getAuthEnv();
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
-    session({ session, user }) {
+    jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+
+      return token;
+    },
+    session({ session, token, user }) {
       if (session.user) {
-        session.user.id = user.id;
-        session.user.role = ((user as { role?: UserRole }).role ?? 'CUSTOMER') as UserRole;
+        session.user.id = user?.id ?? token.sub ?? '';
+        session.user.role = ((user as { role?: UserRole } | undefined)?.role ??
+          token.role ??
+          'CUSTOMER') as UserRole;
       }
 
       return session;
     },
   },
   providers: [
-    Nodemailer({
-      from: process.env.EMAIL_FROM ?? 'admin@binrun.co.nz',
-      server: {
-        jsonTransport: true,
+    Credentials({
+      credentials: {
+        email: {
+          label: 'Email',
+          type: 'email',
+        },
+        password: {
+          label: 'Password',
+          type: 'password',
+        },
       },
-      async sendVerificationRequest({ identifier, url }) {
-        const emailEnv = getEmailEnv();
-        const transport = createTransport({
-          auth: {
-            pass: emailEnv.smtpPassword,
-            user: emailEnv.smtpUser,
+      async authorize(credentials) {
+        const parsedCredentials = loginSchema.safeParse(credentials);
+
+        if (!parsedCredentials.success) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          include: {
+            passwordCredential: true,
           },
-          host: emailEnv.smtpHost,
-          port: emailEnv.smtpPort,
-          secure: emailEnv.smtpPort === 465,
+          where: {
+            email: parsedCredentials.data.email,
+          },
         });
 
-        await transport.sendMail({
-          from: emailEnv.emailFrom,
-          html: `<p>Sign in to BinRun:</p><p><a href="${url}">Sign in</a></p>`,
-          subject: 'Sign in to BinRun',
-          text: `Sign in to BinRun:\n\n${url}\n\nIf you did not request this email, you can ignore it.`,
-          to: identifier,
-        });
+        if (!user?.passwordCredential) {
+          return null;
+        }
+
+        const passwordMatches = await verifyPassword(
+          user.passwordCredential.passwordHash,
+          parsedCredentials.data.password
+        );
+
+        if (!passwordMatches) {
+          return null;
+        }
+
+        return {
+          email: user.email,
+          id: user.id,
+          image: user.image,
+          name: user.name,
+          role: user.role,
+        };
       },
     }),
   ],
+  pages: {
+    signIn: '/login',
+  },
   secret: authEnv.authSecret,
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
   },
   trustHost: authEnv.authTrustHost,
   useSecureCookies: authEnv.secureCookies,

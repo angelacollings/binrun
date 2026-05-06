@@ -1,0 +1,277 @@
+.authPage,
+.signupPage,
+.checkEmail {
+  min-height: 100dvh;
+  background: #f5f7f2;
+  color: #17211d;
+  font-family: var(--font-geist-sans, system-ui, -apple-system, sans-serif);
+}
+
+.authPage {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 480px);
+  gap: 48px;
+  align-items: center;
+  padding: 56px;
+}
+
+.signupPage {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 720px);
+  gap: 40px;
+  align-items: start;
+  padding: 40px;
+}
+
+.checkEmail {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.authHeader,
+.signupIntro {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.brandLink {
+  width: fit-content;
+  color: #17211d;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.eyebrow {
+  color: #53645e;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.authHeader h1,
+.signupIntro h1,
+.messageBox h1 {
+  margin: 0;
+  color: #17211d;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.12;
+}
+
+.authHeader h1,
+.signupIntro h1 {
+  font-size: 42px;
+}
+
+.messageBox h1 {
+  font-size: 30px;
+}
+
+.authHeader p,
+.signupIntro p,
+.messageBox p,
+.hint,
+.switchText {
+  color: #53645e;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.authPanel,
+.signupPanel,
+.messageBox {
+  border: 1px solid #d8dfd9;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 14px 42px rgba(23, 33, 29, 0.08);
+}
+
+.authPanel,
+.messageBox {
+  width: min(100%, 500px);
+  padding: 32px;
+}
+
+.signupPanel {
+  padding: 28px;
+}
+
+.steps {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.steps div {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.steps dt {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #1e6b57;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.steps dd {
+  color: #31433c;
+  line-height: 1.45;
+}
+
+.form,
+.signupForm {
+  display: grid;
+  gap: 16px;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field label,
+.binOptions legend {
+  color: #17211d;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid #d9e2dc;
+  border-radius: 6px;
+  padding: 0 14px;
+  background: #fbfcfa;
+  color: #263832;
+  font: inherit;
+  outline: none;
+}
+
+.field input {
+  min-height: 46px;
+}
+
+.field textarea {
+  min-height: 104px;
+  padding-top: 12px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #1e6b57;
+  box-shadow: 0 0 0 3px rgba(30, 107, 87, 0.18);
+}
+
+.binOptions {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #dfe7e1;
+  border-radius: 8px;
+  background: #fbfcfa;
+  padding: 16px;
+}
+
+.binOptions label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #31433c;
+  line-height: 1.4;
+}
+
+.binOptions input {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cfdad3;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.binOptions input:checked {
+  border-color: #7aa898;
+  background: #7aa898;
+}
+
+.binOptions input:focus {
+  outline: 3px solid rgba(122, 168, 152, 0.25);
+  outline-offset: 2px;
+}
+
+.alert {
+  margin-bottom: 16px;
+  border-radius: 6px;
+  padding: 12px 14px;
+  background: #fbeae8;
+  color: #7d2018;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0 18px;
+  background: #1e6b57;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #174f42;
+}
+
+.hint {
+  margin-top: -4px;
+}
+
+.switchText {
+  margin-top: 22px;
+}
+
+.switchText a {
+  color: #1e6b57;
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .authPage,
+  .signupPage {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 28px 20px;
+  }
+
+  .authHeader h1,
+  .signupIntro h1 {
+    font-size: 34px;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+}

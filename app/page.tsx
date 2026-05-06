@@ -1,4 +1,5 @@
 import styles from './page.module.css';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -11,6 +12,14 @@ export default function Home() {
             <strong>Bin day? Sorted.</strong> We take your bins to the roadside and return them
             after collection.
           </p>
+          <div className={styles.ctas}>
+            <Link className={styles.primary} href="/register">
+              Start service
+            </Link>
+            <Link className={styles.secondary} href="/login">
+              Sign in
+            </Link>
+          </div>
         </div>
       </main>
     </div>

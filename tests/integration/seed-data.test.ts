@@ -117,6 +117,45 @@ describe('seed data contract', () => {
     ]);
   });
 
+  it('stores password hashes for local sample logins', async () => {
+    const credentials = await prisma.passwordCredential.findMany({
+      orderBy: {
+        user: {
+          email: 'asc',
+        },
+      },
+      select: {
+        passwordHash: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+      where: {
+        user: {
+          email: {
+            in: sampleEmails,
+          },
+        },
+      },
+    });
+
+    expect(credentials).toHaveLength(4);
+    expect(credentials).toEqual(
+      expect.arrayContaining(
+        sampleEmails.map((email) =>
+          expect.objectContaining({
+            passwordHash: expect.not.stringContaining('BinRun-local-2026'),
+            user: {
+              email,
+            },
+          })
+        )
+      )
+    );
+  });
+
   it('uses only the service-facing bin options', async () => {
     const binTypes = await prisma.bin.findMany({
       distinct: ['type'],

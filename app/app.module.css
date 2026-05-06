@@ -1,0 +1,63 @@
+.shell {
+  min-height: 100dvh;
+  background: #f6f7f4;
+  color: #17211d;
+  font-family: var(--font-geist-sans, system-ui, -apple-system, sans-serif);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid #d8dfd9;
+  padding: 20px 32px;
+  background: #ffffff;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.main {
+  width: min(100%, 1040px);
+  padding: 48px 32px;
+}
+
+.eyebrow {
+  margin-bottom: 10px;
+  color: #53645e;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.main h1 {
+  margin-bottom: 12px;
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.main p {
+  max-width: 680px;
+  color: #53645e;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.button {
+  min-height: 40px;
+  border: 1px solid #bac8c1;
+  border-radius: 6px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #17211d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: #1e6b57;
+}
