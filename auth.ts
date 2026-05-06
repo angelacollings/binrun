@@ -49,6 +49,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  pages: {
+    signIn: '/login',
+    verifyRequest: '/login/check-email',
+  },
   secret: authEnv.authSecret,
   session: {
     strategy: 'database',

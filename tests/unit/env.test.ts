@@ -62,6 +62,15 @@ describe('environment validation', () => {
     });
   });
 
+  it('trusts local auth hosts outside production', () => {
+    expect(
+      getAuthEnv({
+        AUTH_SECRET: 'local-auth-secret',
+        NODE_ENV: 'development',
+      }).authTrustHost
+    ).toBe(true);
+  });
+
   it('rejects placeholder values in production secrets', () => {
     expect(() =>
       getStripeEnv({
