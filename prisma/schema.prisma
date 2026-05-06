@@ -10,33 +10,40 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  properties    Property[]
-  subscriptions Subscription[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String?             @unique
+  emailVerified      DateTime?
+  image              String?
+  accounts           Account[]
+  sessions           Session[]
+  passwordCredential PasswordCredential?
+  properties         Property[]
+  subscriptions      Subscription[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model Property {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
   userId          String
+  serviceAreaId   String?
   label           String?
   addressLine1    String
   addressLine2    String?
   suburb          String?
-  city            String   @default("Whangarei")
+  city            String         @default("Whangarei")
   postcode        String?
   collectionNotes String?
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceArea     ServiceArea?   @relation(fields: [serviceAreaId], references: [id], onDelete: SetNull)
   bins            Bin[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  serviceVisits   ServiceVisit[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   @@index([userId])
+  @@index([serviceAreaId])
 }
 
 model Bin {
@@ -44,8 +51,10 @@ model Bin {
   propertyId    String
   type          BinType
   label         String?
+  maxQuantity   Int?
   collectionDay CollectionDay?
   property      Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  serviceVisits ServiceVisit[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -67,8 +76,119 @@ model Subscription {
   @@index([userId])
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordCredential {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  passwordHash String   @db.VarChar(255)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ServiceArea {
+  id         String               @id @default(cuid())
+  name       String               @unique
+  city       String               @default("Whangarei")
+  active     Boolean              @default(true)
+  notes      String?              @db.Text
+  properties Property[]
+  schedules  CollectionSchedule[]
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+}
+
+model CollectionSchedule {
+  id            String              @id @default(cuid())
+  serviceAreaId String
+  binType       BinType
+  collectionDay CollectionDay
+  frequency     CollectionFrequency @default(WEEKLY)
+  weekOffset    Int                 @default(0)
+  active        Boolean             @default(true)
+  effectiveFrom DateTime            @default(now())
+  serviceArea   ServiceArea         @relation(fields: [serviceAreaId], references: [id], onDelete: Cascade)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([serviceAreaId, binType, collectionDay])
+  @@index([serviceAreaId])
+}
+
+model ServiceVisit {
+  id           String             @id @default(cuid())
+  propertyId   String
+  binId        String?
+  scheduledFor DateTime
+  status       ServiceVisitStatus @default(PLANNED)
+  completedAt  DateTime?
+  notes        String?            @db.Text
+  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bin          Bin?               @relation(fields: [binId], references: [id], onDelete: SetNull)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([propertyId, scheduledFor])
+  @@index([binId])
+  @@index([status, scheduledFor])
+}
+
+model WebhookEvent {
+  id          String             @id @default(cuid())
+  provider    String             @default("stripe")
+  eventId     String             @unique
+  eventType   String
+  status      WebhookEventStatus @default(RECEIVED)
+  attempts    Int                @default(0)
+  lastError   String?            @db.Text
+  receivedAt  DateTime           @default(now())
+  processedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([provider, status])
+  @@index([eventType])
+}
+
 enum BinType {
   RECYCLING_BINS
+  RUBBISH_BAGS
   RUBBISH_WHEELIE
   GREEN_WASTE_WHEELIE
 }
@@ -89,4 +209,26 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELED
   INCOMPLETE
+}
+
+enum CollectionFrequency {
+  WEEKLY
+  FORTNIGHTLY
+  MONTHLY
+  ON_DEMAND
+}
+
+enum ServiceVisitStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  CANCELED
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  IGNORED
 }

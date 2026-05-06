@@ -19,6 +19,7 @@ We manage all common bin types in Whangarei:
 
 - Council recycling bins
 - Council prepaid rubbish bags
+- Rubbish wheelie bins (third-party providers)
 - Green wheelie bins (third-party providers)
 
 BinRun handles the **movement of bins**, not the waste collection itself.

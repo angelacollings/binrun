@@ -83,6 +83,15 @@ Example shape only:
 DATABASE_URL=mysql://DB_USER:URL_ENCODED_DB_PASSWORD@mysql8:3306/DB_NAME
 ```
 
+The SiteHost MySQL app user must have permission to create foreign keys. In
+MySQL terms, the user needs `REFERENCES` on the application database. Without
+this, Prisma migrations that add relations fail with database error `1142`,
+such as:
+
+```txt
+REFERENCES command denied to user ... for table ...User
+```
+
 Required when payments are implemented:
 
 ```txt
@@ -175,6 +184,51 @@ node .next/standalone/server.js
 
 The build also copies `.next/static` into `.next/standalone/.next/static` so the standalone server can serve Next.js assets.
 
+## Migration Recovery
+
+If `npm run db:deploy` fails during a production migration, do not immediately
+run `migrate resolve`. First identify the cause and inspect what was partially
+created.
+
+For the first MVP domain-model deploy, SiteHost MySQL was missing `REFERENCES`
+for the app user. The failed migration created empty `Property`, `Bin`, and
+`Subscription` tables before stopping at the foreign-key step.
+
+Recovery pattern used:
+
+1. Grant the app database user `REFERENCES` on the SiteHost MySQL database.
+2. Connect to MySQL and confirm the partial tables are empty:
+
+   ```sql
+   SELECT COUNT(*) AS property_count FROM Property;
+   SELECT COUNT(*) AS bin_count FROM Bin;
+   SELECT COUNT(*) AS subscription_count FROM Subscription;
+   ```
+
+3. Drop only the empty partial tables from the failed migration:
+
+   ```sql
+   DROP TABLE IF EXISTS Subscription;
+   DROP TABLE IF EXISTS Bin;
+   DROP TABLE IF EXISTS Property;
+   ```
+
+4. Mark the failed migration as rolled back:
+
+   ```bash
+   npx prisma migrate resolve --rolled-back 20260501000000_add_mvp_domain_models
+   ```
+
+5. Re-run:
+
+   ```bash
+   npm run db:deploy
+   npm run deploy:prepare
+   ```
+
+Only drop tables after verifying they are empty and belong to the failed
+migration attempt.
+
 ## Supervisor
 
 Supervisor config path:
@@ -199,6 +253,15 @@ Supervisor commands:
 ```bash
 supervisorctl -c /container/config/supervisord.conf status nodejs
 supervisorctl -c /container/config/supervisord.conf restart nodejs
+```
+
+If `restart nodejs` fails with `EADDRINUSE` for `0.0.0.0:3000` but no Node
+process is visible, restart the SiteHost app container from the control panel.
+This cleared a stale startup/port state after the May 2026 manual deploy. After
+the container restart, confirm all Supervisor programs are running:
+
+```bash
+supervisorctl -c /container/config/supervisord.conf status
 ```
 
 Logs:
