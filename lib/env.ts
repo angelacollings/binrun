@@ -17,8 +17,8 @@ export type DatabaseEnv = {
 
 export type AuthEnv = {
   authSecret: string;
-  nextAuthSecret: string;
-  nextAuthUrl: string;
+  authTrustHost: boolean;
+  authUrl?: string;
   nodeEnv: RuntimeEnvironment;
   secureCookies: boolean;
 };

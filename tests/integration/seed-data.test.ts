@@ -3,7 +3,9 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { createPrismaTestClient } from './prisma-test-client';
 
 const prisma = createPrismaTestClient();
-const sampleEmails = ['angela@example.com', 'sam@example.com'];
+const sampleCustomerEmails = ['angela@example.com', 'sam@example.com'];
+const sampleStaffEmails = ['worker@example.com', 'admin@example.com'];
+const sampleEmails = [...sampleCustomerEmails, ...sampleStaffEmails];
 const expectedBinTypes = [
   'GREEN_WASTE_WHEELIE',
   'RECYCLING_BINS',
@@ -22,7 +24,7 @@ describe('seed data contract', () => {
         prisma.user.count({
           where: {
             email: {
-              in: sampleEmails,
+              in: sampleCustomerEmails,
             },
           },
         }),
@@ -30,7 +32,7 @@ describe('seed data contract', () => {
           where: {
             user: {
               email: {
-                in: sampleEmails,
+                in: sampleCustomerEmails,
               },
             },
           },
@@ -40,7 +42,7 @@ describe('seed data contract', () => {
             property: {
               user: {
                 email: {
-                  in: sampleEmails,
+                  in: sampleCustomerEmails,
                 },
               },
             },
@@ -50,7 +52,7 @@ describe('seed data contract', () => {
           where: {
             user: {
               email: {
-                in: sampleEmails,
+                in: sampleCustomerEmails,
               },
             },
           },
@@ -79,6 +81,42 @@ describe('seed data contract', () => {
     });
   });
 
+  it('creates customer, worker, and admin role examples', async () => {
+    const users = await prisma.user.findMany({
+      orderBy: {
+        email: 'asc',
+      },
+      select: {
+        email: true,
+        role: true,
+      },
+      where: {
+        email: {
+          in: sampleEmails,
+        },
+      },
+    });
+
+    expect(users).toEqual([
+      {
+        email: 'admin@example.com',
+        role: 'ADMIN',
+      },
+      {
+        email: 'angela@example.com',
+        role: 'CUSTOMER',
+      },
+      {
+        email: 'sam@example.com',
+        role: 'CUSTOMER',
+      },
+      {
+        email: 'worker@example.com',
+        role: 'WORKER',
+      },
+    ]);
+  });
+
   it('uses only the service-facing bin options', async () => {
     const binTypes = await prisma.bin.findMany({
       distinct: ['type'],
@@ -92,7 +130,7 @@ describe('seed data contract', () => {
         property: {
           user: {
             email: {
-              in: sampleEmails,
+              in: sampleCustomerEmails,
             },
           },
         },
@@ -125,7 +163,7 @@ describe('seed data contract', () => {
         property: {
           user: {
             email: {
-              in: sampleEmails,
+              in: sampleCustomerEmails,
             },
           },
         },
@@ -234,7 +272,7 @@ describe('seed data contract', () => {
       where: {
         user: {
           email: {
-            in: sampleEmails,
+            in: sampleCustomerEmails,
           },
         },
       },
