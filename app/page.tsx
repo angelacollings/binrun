@@ -13,11 +13,11 @@ export default function Home() {
             after collection.
           </p>
           <div className={styles.ctas}>
-            <Link className={styles.primary} href="/login">
-              Sign in
+            <Link className={styles.primary} href="/register">
+              Start service
             </Link>
-            <Link className={styles.secondary} href="/register">
-              Request access
+            <Link className={styles.secondary} href="/login">
+              Sign in
             </Link>
           </div>
         </div>

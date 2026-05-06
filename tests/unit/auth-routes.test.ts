@@ -12,6 +12,7 @@ describe('auth route helpers', () => {
 
   it('only accepts local callback paths', () => {
     expect(safeRelativePath('/dashboard?tab=bins')).toBe('/dashboard?tab=bins');
+    expect(safeRelativePath('/worker')).toBe('/worker');
     expect(safeRelativePath('https://example.com/dashboard')).toBe('/dashboard');
     expect(safeRelativePath('//example.com/dashboard')).toBe('/dashboard');
     expect(safeRelativePath('dashboard')).toBe('/dashboard');

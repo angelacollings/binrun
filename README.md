@@ -166,7 +166,7 @@ Current validation behavior:
 Current requirement groups:
 
 - Required now: `DATABASE_URL`
-- Required when auth lands: `AUTH_SECRET`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
+- Required when auth lands: `AUTH_SECRET`
 - Recommended for deployed auth behind SiteHost: `AUTH_URL`, `AUTH_TRUST_HOST=true`
 - Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 - Required when notifications land: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`

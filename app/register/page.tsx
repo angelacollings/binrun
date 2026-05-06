@@ -1,13 +1,12 @@
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
-import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
+import { homePathForRole } from '@/lib/auth/routes';
 
-import { AuthForm } from '../(auth)/AuthForm';
+import { ServiceSignupForm } from '../(auth)/ServiceSignupForm';
 
 type RegisterPageProps = {
   searchParams: Promise<{
-    callbackUrl?: string | string[];
     error?: string | string[];
   }>;
 };
@@ -25,11 +24,5 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   const params = await searchParams;
 
-  return (
-    <AuthForm
-      callbackUrl={safeRelativePath(firstValue(params.callbackUrl))}
-      error={firstValue(params.error)}
-      mode="register"
-    />
-  );
+  return <ServiceSignupForm error={firstValue(params.error)} />;
 }

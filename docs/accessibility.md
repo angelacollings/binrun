@@ -8,7 +8,7 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 - [x] The launch page has a single visible `h1`.
 - [x] The default Next.js route announcer can use the document title or page heading.
 - [x] ESLint is enabled for React and Next.js rules.
-- [x] E2E smoke coverage checks the launch-page heading and key copy.
+- [x] E2E smoke coverage checks the launch-page heading, key copy, service signup, and shared login.
 - [ ] Automated accessibility checks are wired into Playwright.
 - [ ] Manual keyboard and screen reader checks are documented per core flow.
 
@@ -48,7 +48,7 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 | Flow                | Status    | Required checks                                                       |
 | ------------------- | --------- | --------------------------------------------------------------------- |
 | Launch page         | Built     | Heading, copy, mobile layout, colour contrast.                        |
-| Login/register      | Not built | Labels, password manager support, errors, keyboard flow.              |
+| Login/register      | Built     | Labelled email/address fields, safe errors, keyboard flow.            |
 | Property management | Not built | Address autocomplete/manual entry, validation, empty states.          |
 | Bin selection       | Not built | Clear bin names, non-colour status, review before save.               |
 | Dashboard           | Not built | Collection schedule readability, subscription state, mobile scanning. |

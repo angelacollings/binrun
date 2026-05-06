@@ -2,12 +2,14 @@ import 'dotenv/config';
 
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
+import { hash } from 'argon2';
 
 import { getDatabaseEnv } from '../lib/env.mjs';
 
 const sampleCustomerEmails = ['angela@example.com', 'sam@example.com'];
 const sampleStaffEmails = ['worker@example.com', 'admin@example.com'];
 const sampleEmails = [...sampleCustomerEmails, ...sampleStaffEmails];
+const samplePassword = 'BinRun-local-2026';
 const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
 
 function assertSafeSeedTarget({ databaseUrl, nodeEnv }) {
@@ -39,6 +41,8 @@ async function main() {
   const prisma = getPrismaClient();
 
   try {
+    const samplePasswordHash = await hash(samplePassword);
+
     await prisma.user.deleteMany({
       where: {
         email: {
@@ -105,6 +109,11 @@ async function main() {
         email: 'angela@example.com',
         emailVerified: new Date(),
         name: 'Angela Collings',
+        passwordCredential: {
+          create: {
+            passwordHash: samplePasswordHash,
+          },
+        },
         role: 'CUSTOMER',
         subscriptions: {
           create: {
@@ -179,6 +188,11 @@ async function main() {
         email: 'sam@example.com',
         emailVerified: new Date(),
         name: 'Sam Taylor',
+        passwordCredential: {
+          create: {
+            passwordHash: samplePasswordHash,
+          },
+        },
         role: 'CUSTOMER',
         subscriptions: {
           create: {
@@ -218,6 +232,11 @@ async function main() {
         email: 'worker@example.com',
         emailVerified: new Date(),
         name: 'BinRun Worker',
+        passwordCredential: {
+          create: {
+            passwordHash: samplePasswordHash,
+          },
+        },
         role: 'WORKER',
       },
     });
@@ -227,12 +246,17 @@ async function main() {
         email: 'admin@example.com',
         emailVerified: new Date(),
         name: 'BinRun Admin',
+        passwordCredential: {
+          create: {
+            passwordHash: samplePasswordHash,
+          },
+        },
         role: 'ADMIN',
       },
     });
 
     console.log(
-      `Seeded ${sampleCustomerEmails.length} customers and ${sampleStaffEmails.length} staff users.`
+      `Seeded ${sampleCustomerEmails.length} customers and ${sampleStaffEmails.length} staff users with local password "${samplePassword}".`
     );
   } finally {
     await prisma.$disconnect();

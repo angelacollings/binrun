@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
 
-import { AuthForm } from '../(auth)/AuthForm';
+import { CustomerLoginForm } from '../(auth)/CustomerLoginForm';
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -24,12 +24,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   const params = await searchParams;
+  const callbackUrl = firstValue(params.callbackUrl);
 
   return (
-    <AuthForm
-      callbackUrl={safeRelativePath(firstValue(params.callbackUrl))}
+    <CustomerLoginForm
+      callbackUrl={callbackUrl ? safeRelativePath(callbackUrl) : undefined}
       error={firstValue(params.error)}
-      mode="login"
     />
   );
 }
