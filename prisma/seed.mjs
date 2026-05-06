@@ -45,6 +45,59 @@ async function main() {
       },
     });
 
+    const whangareiUrban = await prisma.serviceArea.upsert({
+      where: {
+        name: 'Whangarei Urban',
+      },
+      update: {
+        active: true,
+        city: 'Whangarei',
+        notes: 'Sample local service area for customer dashboard development.',
+      },
+      create: {
+        active: true,
+        city: 'Whangarei',
+        name: 'Whangarei Urban',
+        notes: 'Sample local service area for customer dashboard development.',
+      },
+    });
+
+    await prisma.collectionSchedule.deleteMany({
+      where: {
+        serviceAreaId: whangareiUrban.id,
+      },
+    });
+
+    await prisma.collectionSchedule.createMany({
+      data: [
+        {
+          serviceAreaId: whangareiUrban.id,
+          binType: 'RECYCLING_BINS',
+          collectionDay: 'TUESDAY',
+          frequency: 'FORTNIGHTLY',
+        },
+        {
+          serviceAreaId: whangareiUrban.id,
+          binType: 'RUBBISH_BAGS',
+          collectionDay: 'TUESDAY',
+          frequency: 'WEEKLY',
+        },
+        {
+          serviceAreaId: whangareiUrban.id,
+          binType: 'RUBBISH_WHEELIE',
+          collectionDay: 'TUESDAY',
+          frequency: 'WEEKLY',
+        },
+        {
+          serviceAreaId: whangareiUrban.id,
+          binType: 'GREEN_WASTE_WHEELIE',
+          collectionDay: 'THURSDAY',
+          frequency: 'FORTNIGHTLY',
+          weekOffset: 1,
+        },
+      ],
+    });
+
     await prisma.user.create({
       data: {
         email: 'angela@example.com',
@@ -63,6 +116,7 @@ async function main() {
             {
               label: 'Home',
               addressLine1: '12 Riverside Road',
+              serviceAreaId: whangareiUrban.id,
               suburb: 'Kensington',
               city: 'Whangarei',
               postcode: '0112',
@@ -75,14 +129,15 @@ async function main() {
                     collectionDay: 'TUESDAY',
                   },
                   {
-                    type: 'RUBBISH_WHEELIE',
-                    label: 'Rubbish wheelie bin',
+                    type: 'RUBBISH_BAGS',
+                    label: 'Council prepaid rubbish bags',
+                    maxQuantity: 3,
                     collectionDay: 'TUESDAY',
                   },
                   {
                     type: 'GREEN_WASTE_WHEELIE',
                     label: 'Green waste wheelie bin',
-                    collectionDay: 'TUESDAY',
+                    collectionDay: 'THURSDAY',
                   },
                 ],
               },
@@ -90,6 +145,7 @@ async function main() {
             {
               label: 'Rental',
               addressLine1: '48 Harbour View Terrace',
+              serviceAreaId: whangareiUrban.id,
               suburb: 'Onerahi',
               city: 'Whangarei',
               postcode: '0110',
@@ -102,8 +158,9 @@ async function main() {
                     collectionDay: 'WEDNESDAY',
                   },
                   {
-                    type: 'RUBBISH_WHEELIE',
-                    label: 'Rubbish wheelie bin',
+                    type: 'RUBBISH_BAGS',
+                    label: 'Council prepaid rubbish bags',
+                    maxQuantity: 3,
                     collectionDay: 'WEDNESDAY',
                   },
                 ],
@@ -128,6 +185,7 @@ async function main() {
           create: {
             label: 'Airbnb',
             addressLine1: '7 Puriri Street',
+            serviceAreaId: whangareiUrban.id,
             suburb: 'Kamo',
             city: 'Whangarei',
             postcode: '0112',
