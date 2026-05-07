@@ -22,5 +22,7 @@ test('renders customer service signup and account creation form', async ({ page 
   await expect(page.getByLabel('Confirm password')).toHaveAttribute('autocomplete', 'new-password');
   await expect(page.getByLabel('Service address')).toBeVisible();
   await expect(page.getByRole('group', { name: 'Bins to move' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Create account and start service' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Create account and start service' })
+  ).toBeVisible();
 });

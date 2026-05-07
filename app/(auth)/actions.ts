@@ -1,13 +1,14 @@
 'use server';
 
-import { AuthError } from 'next-auth';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { BinType } from '@prisma/client';
+import type { BinType, UserRole } from '@prisma/client';
 
-import { signIn, signOut } from '@/auth';
-import { hashPassword, loginSchema, signupSchema, verifyPassword } from '@/lib/auth/password';
+import { auth } from '@/auth';
+import { hashPassword, loginSchema, signupSchema } from '@/lib/auth/password';
 import { prisma } from '@/lib/prisma';
 import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
+import { checkAuthRateLimit } from '@/lib/auth/throttle';
 
 function redirectWithLoginError(error: string, callbackUrl: string): never {
   const params = new URLSearchParams({
@@ -26,6 +27,28 @@ function formValue(formData: FormData, name: string) {
   return String(formData.get(name) ?? '').trim();
 }
 
+function firstForwardedValue(value: string | null) {
+  return value?.split(',')[0]?.trim() || 'unknown';
+}
+
+async function requestIdentity() {
+  const requestHeaders = await headers();
+
+  return firstForwardedValue(
+    requestHeaders.get('x-forwarded-for') ?? requestHeaders.get('x-real-ip')
+  );
+}
+
+async function enforceAuthThrottle(action: 'login' | 'signup', email: string) {
+  const identity = await requestIdentity();
+  const normalizedEmail = email.trim().toLowerCase() || 'unknown';
+  const result = checkAuthRateLimit(`${action}:${identity}:${normalizedEmail}`);
+
+  if (!result.allowed) {
+    redirect(`/${action === 'login' ? 'login' : 'register'}?error=too-many-attempts`);
+  }
+}
+
 function selectedBinTypes(formData: FormData): BinType[] {
   const allowed = new Set<BinType>([
     'RECYCLING_BINS',
@@ -40,31 +63,53 @@ function selectedBinTypes(formData: FormData): BinType[] {
     .filter((value): value is BinType => allowed.has(value as BinType));
 }
 
-async function signInWithPassword(email: string, password: string, callbackUrl: string, errorPath = '/login') {
+async function signInWithPassword(
+  email: string,
+  password: string,
+  callbackUrl?: string,
+  errorPath = '/login'
+) {
+  const requestHeaders = await headers();
+  let destination: string;
+
   try {
-    await signIn('credentials', {
-      email,
-      password,
-      redirectTo: callbackUrl,
+    const result = await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+      headers: requestHeaders,
     });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      const params = new URLSearchParams({
-        callbackUrl,
-        error: 'invalid-credentials',
-      });
+    destination = callbackUrl ?? homePathForRole(result.user.role as UserRole);
+  } catch {
+    const params = new URLSearchParams({
+      callbackUrl: callbackUrl ?? '/dashboard',
+      error: 'invalid-credentials',
+    });
 
-      redirect(`${errorPath}?${params.toString()}`);
-    }
-
-    throw error;
+    redirect(`${errorPath}?${params.toString()}`);
   }
+
+  redirect(destination);
+}
+
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code === 'P2002'
+  );
 }
 
 export async function requestLogin(formData: FormData) {
   const callbackUrl = optionalCallbackPath(formData.get('callbackUrl'));
+  const emailValue = formValue(formData, 'email');
+
+  await enforceAuthThrottle('login', emailValue);
+
   const parsedCredentials = loginSchema.safeParse({
-    email: formValue(formData, 'email'),
+    email: emailValue,
     password: formValue(formData, 'password'),
   });
 
@@ -73,37 +118,19 @@ export async function requestLogin(formData: FormData) {
   }
 
   const { email, password } = parsedCredentials.data;
-  const user = await prisma.user.findUnique({
-    select: {
-      passwordCredential: {
-        select: {
-          passwordHash: true,
-        },
-      },
-      role: true,
-    },
-    where: {
-      email,
-    },
-  });
 
-  const passwordHash = user?.passwordCredential?.passwordHash;
-  const verified = passwordHash ? await verifyPassword(passwordHash, password) : false;
-
-  if (!verified) {
-    return redirectWithLoginError('invalid-credentials', callbackUrl ?? '/dashboard');
-  }
-
-  const destination = callbackUrl ?? homePathForRole(user?.role);
-
-  await signInWithPassword(email, password, destination);
+  await signInWithPassword(email, password, callbackUrl);
 }
 
 export async function requestServiceSignup(formData: FormData) {
+  const emailValue = formValue(formData, 'email');
+
+  await enforceAuthThrottle('signup', emailValue);
+
   const parsedSignup = signupSchema.safeParse({
     addressLine1: formValue(formData, 'addressLine1'),
     collectionNotes: formValue(formData, 'collectionNotes'),
-    email: formValue(formData, 'email'),
+    email: emailValue,
     name: formValue(formData, 'name'),
     password: formValue(formData, 'password'),
     passwordConfirm: formValue(formData, 'passwordConfirm'),
@@ -120,6 +147,19 @@ export async function requestServiceSignup(formData: FormData) {
     parsedSignup.data;
   const passwordHash = await hashPassword(password);
 
+  const existingUser = await prisma.user.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      email,
+    },
+  });
+
+  if (existingUser) {
+    redirect('/register?error=account-unavailable');
+  }
+
   const serviceArea = await prisma.serviceArea.findFirst({
     select: {
       id: true,
@@ -130,73 +170,53 @@ export async function requestServiceSignup(formData: FormData) {
     },
   });
 
-  const user = await prisma.user.upsert({
-    create: {
-      email,
-      name,
-      passwordCredential: {
-        create: {
-          passwordHash,
-        },
-      },
-      role: 'CUSTOMER',
-    },
-    update: {
-      name,
-      passwordCredential: {
-        upsert: {
-          create: {
-            passwordHash,
-          },
-          update: {
-            passwordHash,
-          },
-        },
-      },
-    },
-    where: {
-      email,
-    },
-  });
-
-  const existingProperty = await prisma.property.findFirst({
-    select: {
-      id: true,
-    },
-    where: {
-      addressLine1,
-      postcode: postcode || null,
-      suburb,
-      userId: user.id,
-    },
-  });
-
-  if (!existingProperty) {
-    await prisma.property.create({
+  try {
+    await prisma.user.create({
       data: {
-        addressLine1,
-        city: 'Whangarei',
-        collectionNotes: collectionNotes || null,
-        label: 'Home',
-        postcode: postcode || null,
-        serviceAreaId: serviceArea?.id,
-        suburb,
-        userId: user.id,
-        bins: {
-          create: binTypes.map((type) => ({
-            maxQuantity: type === 'RUBBISH_BAGS' ? 3 : null,
-            type,
-          })),
+        email,
+        name,
+        accounts: {
+          create: {
+            accountId: email,
+            providerId: 'credential',
+            password: passwordHash,
+          },
+        },
+        role: 'CUSTOMER',
+        properties: {
+          create: {
+            addressLine1,
+            city: 'Whangarei',
+            collectionNotes: collectionNotes || null,
+            label: 'Home',
+            postcode: postcode || null,
+            serviceAreaId: serviceArea?.id,
+            suburb,
+            bins: {
+              create: binTypes.map((type) => ({
+                maxQuantity: type === 'RUBBISH_BAGS' ? 3 : null,
+                type,
+              })),
+            },
+          },
         },
       },
     });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      redirect('/register?error=account-unavailable');
+    }
+
+    throw error;
   }
 
   await signInWithPassword(email, password, '/dashboard', '/register');
 }
 
 export async function logout() {
-  await signOut({
-    redirectTo: '/',
+  await auth.api.signOut({
+    headers: await headers(),
   });
+
+  redirect('/');
 }

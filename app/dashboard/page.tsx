@@ -10,9 +10,7 @@ export default async function DashboardPage() {
     <Shell>
       <p className={styles.eyebrow}>Customer dashboard</p>
       <h1>Welcome{session.user.name ? `, ${session.user.name}` : ''}</h1>
-      <p>
-        This protected customer area is ready for property, bin, and subscription workflows.
-      </p>
+      <p>This protected customer area is ready for property, bin, and subscription workflows.</p>
     </Shell>
   );
 }

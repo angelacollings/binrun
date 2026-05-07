@@ -1,93 +1,58 @@
-import NextAuth from 'next-auth';
-import type { UserRole } from '@prisma/client';
-import Credentials from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prismaAdapter } from '@better-auth/prisma-adapter';
+import { betterAuth } from 'better-auth';
+import { nextCookies } from 'better-auth/next-js';
 
-import { getAuthEnv } from '@/lib/env';
-import { loginSchema, verifyPassword } from '@/lib/auth/password';
-import { prisma } from '@/lib/prisma';
+import { getAuthEnv } from './lib/env';
+import { hashPassword, verifyPassword } from './lib/auth/password';
+import { prisma } from './lib/prisma';
 
 const authEnv = getAuthEnv();
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-
-      return token;
-    },
-    session({ session, token, user }) {
-      if (session.user) {
-        session.user.id = user?.id ?? token.sub ?? '';
-        session.user.role = ((user as { role?: UserRole } | undefined)?.role ??
-          token.role ??
-          'CUSTOMER') as UserRole;
-      }
-
-      return session;
+export const auth = betterAuth({
+  baseURL: authEnv.authUrl,
+  database: prismaAdapter(prisma, {
+    provider: 'mysql',
+  }),
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 10,
+    maxPasswordLength: 128,
+    password: {
+      hash: hashPassword,
+      verify: ({ hash, password }) => verifyPassword(hash, password),
     },
   },
-  providers: [
-    Credentials({
-      credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-        },
-        password: {
-          label: 'Password',
-          type: 'password',
-        },
+  plugins: [nextCookies()],
+  rateLimit: {
+    enabled: true,
+    max: 100,
+    storage: 'memory',
+    window: 60,
+    customRules: {
+      '/sign-in/email': {
+        max: 5,
+        window: 15 * 60,
       },
-      async authorize(credentials) {
-        const parsedCredentials = loginSchema.safeParse(credentials);
-
-        if (!parsedCredentials.success) {
-          return null;
-        }
-
-        const user = await prisma.user.findUnique({
-          include: {
-            passwordCredential: true,
-          },
-          where: {
-            email: parsedCredentials.data.email,
-          },
-        });
-
-        if (!user?.passwordCredential) {
-          return null;
-        }
-
-        const passwordMatches = await verifyPassword(
-          user.passwordCredential.passwordHash,
-          parsedCredentials.data.password
-        );
-
-        if (!passwordMatches) {
-          return null;
-        }
-
-        return {
-          email: user.email,
-          id: user.id,
-          image: user.image,
-          name: user.name,
-          role: user.role,
-        };
+      '/sign-up/email': {
+        max: 5,
+        window: 15 * 60,
       },
-    }),
-  ],
-  pages: {
-    signIn: '/login',
+    },
   },
   secret: authEnv.authSecret,
   session: {
-    strategy: 'jwt',
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
-  trustHost: authEnv.authTrustHost,
-  useSecureCookies: authEnv.secureCookies,
+  trustedOrigins: authEnv.authUrl ? [authEnv.authUrl] : undefined,
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        defaultValue: 'CUSTOMER',
+        input: false,
+        required: true,
+      },
+    },
+  },
 });

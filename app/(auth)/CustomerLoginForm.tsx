@@ -10,6 +10,7 @@ type CustomerLoginFormProps = {
 
 const errorMessages: Record<string, string> = {
   'invalid-credentials': 'Check your email and password, then try again.',
+  'too-many-attempts': 'Too many sign-in attempts. Wait a few minutes, then try again.',
 };
 
 export function CustomerLoginForm({ callbackUrl, error }: CustomerLoginFormProps) {

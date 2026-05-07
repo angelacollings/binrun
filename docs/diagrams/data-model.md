@@ -11,35 +11,33 @@ USERS {
 id CUID
 email TEXT
 name TEXT
-email_verified DATETIME
+email_verified BOOLEAN
 image TEXT
 role USER_ROLE
 }
 
     ACCOUNTS {
         id CUID
+        account_id TEXT
+        provider_id TEXT
         user_id CUID
-        provider TEXT
-        provider_account_id TEXT
+        password TEXT
     }
 
     SESSIONS {
         id CUID
-        session_token TEXT
-        user_id CUID
-        expires DATETIME
-    }
-
-    PASSWORD_CREDENTIALS {
-        id CUID
-        user_id CUID
-        password_hash TEXT
-    }
-
-    VERIFICATION_TOKENS {
-        identifier TEXT
         token TEXT
-        expires DATETIME
+        user_id CUID
+        expires_at DATETIME
+        ip_address TEXT
+        user_agent TEXT
+    }
+
+    VERIFICATIONS {
+        id CUID
+        identifier TEXT
+        value TEXT
+        expires_at DATETIME
     }
 
     PROPERTIES {
@@ -108,7 +106,6 @@ role USER_ROLE
 
     USERS ||--o{ ACCOUNTS : has
     USERS ||--o{ SESSIONS : has
-    USERS ||--o| PASSWORD_CREDENTIALS : has
     USERS ||--o{ PROPERTIES : owns
     PROPERTIES ||--o{ BINS : has
     USERS ||--o{ SUBSCRIPTIONS : has

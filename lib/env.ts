@@ -17,10 +17,8 @@ export type DatabaseEnv = {
 
 export type AuthEnv = {
   authSecret: string;
-  authTrustHost: boolean;
-  authUrl?: string;
+  authUrl: string;
   nodeEnv: RuntimeEnvironment;
-  secureCookies: boolean;
 };
 
 export type StripeEnv = {

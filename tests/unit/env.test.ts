@@ -36,39 +36,76 @@ describe('environment validation', () => {
   it('uses secure cookie defaults for production auth config', () => {
     expect(
       getAuthEnv({
-        AUTH_SECRET: 'production-auth-secret',
-        AUTH_TRUST_HOST: 'true',
-        AUTH_URL: 'https://binrun.co.nz',
+        BETTER_AUTH_SECRET: 'production-auth-secret',
+        BETTER_AUTH_URL: 'https://binrun.co.nz',
         NODE_ENV: 'production',
       })
     ).toMatchObject({
-      authTrustHost: true,
       authUrl: 'https://binrun.co.nz',
       nodeEnv: 'production',
-      secureCookies: true,
     });
   });
 
-  it('allows auth URL to be supplied by the hosting request context', () => {
-    expect(
+  it('requires an explicit auth URL in production', () => {
+    expect(() =>
       getAuthEnv({
-        AUTH_SECRET: 'production-auth-secret',
+        BETTER_AUTH_SECRET: 'production-auth-secret-with-enough-length',
         NODE_ENV: 'production',
       })
+    ).toThrow('Missing required environment variable: AUTH_URL');
+  });
+
+  it('allows local production builds to use local Better Auth defaults', () => {
+    expect(
+      getAuthEnv({
+        AUTH_SECRET: 'short-local-key',
+        DATABASE_URL: 'mysql://binrun:binrun-local@127.0.0.1:3306/binrun',
+        NODE_ENV: 'production',
+        npm_lifecycle_event: 'build',
+      })
     ).toMatchObject({
-      authTrustHost: false,
-      authUrl: undefined,
+      authUrl: 'http://localhost:3000',
       nodeEnv: 'production',
     });
   });
 
-  it('trusts local auth hosts outside production', () => {
+  it('does not use local auth defaults for production runtime', () => {
+    expect(() =>
+      getAuthEnv({
+        DATABASE_URL: 'mysql://binrun:binrun-local@127.0.0.1:3306/binrun',
+        NODE_ENV: 'production',
+      })
+    ).toThrow('Missing required environment variable: AUTH_SECRET');
+  });
+
+  it('uses stable local Better Auth defaults outside production', () => {
+    expect(getAuthEnv({ NODE_ENV: 'development' })).toMatchObject({
+      authUrl: 'http://localhost:3000',
+      nodeEnv: 'development',
+    });
+    expect(getAuthEnv({ NODE_ENV: 'development' }).authSecret.length).toBeGreaterThanOrEqual(32);
+  });
+
+  it('uses local defaults instead of short legacy development secrets', () => {
     expect(
       getAuthEnv({
-        AUTH_SECRET: 'local-auth-secret',
+        AUTH_SECRET: 'short-local-key',
         NODE_ENV: 'development',
-      }).authTrustHost
-    ).toBe(true);
+      }).authSecret.length
+    ).toBeGreaterThanOrEqual(32);
+  });
+
+  it('keeps legacy Auth.js env names as a migration fallback', () => {
+    expect(
+      getAuthEnv({
+        AUTH_SECRET: 'legacy-local-auth-secret-with-enough-length',
+        AUTH_URL: 'http://localhost:3000',
+        NODE_ENV: 'development',
+      })
+    ).toMatchObject({
+      authSecret: 'legacy-local-auth-secret-with-enough-length',
+      authUrl: 'http://localhost:3000',
+    });
   });
 
   it('rejects placeholder values in production secrets', () => {
