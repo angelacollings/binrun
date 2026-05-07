@@ -35,6 +35,8 @@ model Property {
   city            String         @default("Whangarei")
   postcode        String?
   collectionNotes String?
+  active          Boolean        @default(true)
+  deactivatedAt   DateTime?
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   serviceArea     ServiceArea?   @relation(fields: [serviceAreaId], references: [id], onDelete: SetNull)
   bins            Bin[]
@@ -43,6 +45,7 @@ model Property {
   updatedAt       DateTime       @updatedAt
 
   @@index([userId])
+  @@index([userId, active])
   @@index([serviceAreaId])
 }
 
@@ -113,9 +116,9 @@ model Verification {
   id         String    @id @default(cuid())
   identifier String
   value      String
-  expiresAt DateTime
-  createdAt DateTime?  @default(now())
-  updatedAt DateTime?  @updatedAt
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 
   @@index([identifier])
 }

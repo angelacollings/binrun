@@ -151,8 +151,12 @@ cd /container/application/project
 git pull
 npm ci
 npm run deploy:prepare
-supervisorctl -c /container/config/supervisord.conf restart nodejs
 ```
+
+After `deploy:prepare` completes, reboot or restart the app container from the
+SiteHost control panel. The Supervisor `restart nodejs` command has repeatedly
+left the container in a stale port/process state, so treat the control-panel
+container reboot as the normal restart path.
 
 If this is the first clone into an empty container:
 
@@ -247,17 +251,17 @@ stdout_logfile=/container/logs/supervisor/%(program_name)s-stdout.log
 stderr_logfile=/container/logs/supervisor/%(program_name)s-stderr.log
 ```
 
-Supervisor commands:
+Supervisor diagnostics:
 
 ```bash
 supervisorctl -c /container/config/supervisord.conf status nodejs
-supervisorctl -c /container/config/supervisord.conf restart nodejs
 ```
 
-If `restart nodejs` fails with `EADDRINUSE` for `0.0.0.0:3000` but no Node
-process is visible, restart the SiteHost app container from the control panel.
-This cleared a stale startup/port state after the May 2026 manual deploy. After
-the container restart, confirm all Supervisor programs are running:
+Use the SiteHost control panel to reboot or restart the app container after
+deploys and rollbacks. The Supervisor `restart nodejs` command has failed with
+`EADDRINUSE` for `0.0.0.0:3000` while no Node process was visible. A full
+container restart cleared the stale startup/port state. After the container
+restart, confirm all Supervisor programs are running:
 
 ```bash
 supervisorctl -c /container/config/supervisord.conf status
@@ -301,8 +305,10 @@ git log --oneline -5
 git checkout COMMIT_SHA
 npm ci
 npm run deploy:prepare
-supervisorctl -c /container/config/supervisord.conf restart nodejs
 ```
+
+After `deploy:prepare` completes, reboot or restart the app container from the
+SiteHost control panel.
 
 After rollback, verify:
 

@@ -22,65 +22,92 @@ afterAll(async () => {
 
 describe('seed data contract', () => {
   it('creates the expected sample customer records', async () => {
-    const [users, properties, bins, subscriptions, serviceAreas, collectionSchedules] =
-      await Promise.all([
-        prisma.user.count({
-          where: {
+    const [
+      users,
+      properties,
+      bins,
+      subscriptions,
+      serviceAreas,
+      collectionSchedules,
+      serviceVisits,
+    ] = await Promise.all([
+      prisma.user.count({
+        where: {
+          email: {
+            in: sampleCustomerEmails,
+          },
+        },
+      }),
+      prisma.property.count({
+        where: {
+          user: {
             email: {
               in: sampleCustomerEmails,
             },
           },
-        }),
-        prisma.property.count({
-          where: {
+        },
+      }),
+      prisma.bin.count({
+        where: {
+          property: {
             user: {
               email: {
                 in: sampleCustomerEmails,
               },
             },
           },
-        }),
-        prisma.bin.count({
-          where: {
-            property: {
-              user: {
-                email: {
-                  in: sampleCustomerEmails,
-                },
-              },
+        },
+      }),
+      prisma.subscription.count({
+        where: {
+          user: {
+            email: {
+              in: sampleCustomerEmails,
             },
           },
-        }),
-        prisma.subscription.count({
-          where: {
-            user: {
-              email: {
-                in: sampleCustomerEmails,
-              },
-            },
-          },
-        }),
-        prisma.serviceArea.count({
-          where: {
+        },
+      }),
+      prisma.serviceArea.count({
+        where: {
+          name: 'Whangarei Urban',
+        },
+      }),
+      prisma.collectionSchedule.count({
+        where: {
+          serviceArea: {
             name: 'Whangarei Urban',
           },
-        }),
-        prisma.collectionSchedule.count({
-          where: {
-            serviceArea: {
-              name: 'Whangarei Urban',
+        },
+      }),
+      prisma.serviceVisit.count({
+        where: {
+          property: {
+            user: {
+              email: {
+                in: sampleCustomerEmails,
+              },
             },
           },
-        }),
-      ]);
+        },
+      }),
+    ]);
 
-    expect({ users, properties, bins, subscriptions, serviceAreas, collectionSchedules }).toEqual({
+    expect({
+      users,
+      properties,
+      bins,
+      subscriptions,
+      serviceAreas,
+      collectionSchedules,
+      serviceVisits,
+    }).toEqual({
       users: 2,
       properties: 3,
       bins: 7,
       subscriptions: 2,
       serviceAreas: 1,
       collectionSchedules: 4,
+      serviceVisits: 7,
     });
   });
 
