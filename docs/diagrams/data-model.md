@@ -4,6 +4,7 @@
 `GREEN_WASTE_WHEELIE`. Red and blue recycling bins are modeled as one service
 item because they go out together. Prepaid rubbish bags can store a per-service
 maximum quantity; the current local seed cap is three bags.
+Each active property can have at most one row per bin type.
 
 ```mermaid
 erDiagram
@@ -51,6 +52,8 @@ role USER_ROLE
         city TEXT
         postcode TEXT
         collection_notes TEXT
+        active BOOLEAN
+        deactivated_at DATETIME
     }
 
     BINS {

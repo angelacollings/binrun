@@ -28,7 +28,7 @@ Update it whenever a feature adds a new route, API, integration, secret, or admi
 | `/register`        | Public signup form       | Reject duplicate emails safely; create Better Auth credential accounts; throttle attempts.    |
 | Customer dashboard | Not built                | Require authenticated session; query by session user only.                                    |
 | Properties API     | Built                    | Validate input server-side; create/read/update/deactivate only records owned by session user. |
-| Bin selection API  | Not built                | Validate bin type and collection day server-side; enforce property ownership.                 |
+| Bin selection API  | Built                    | Validate bin type and collection day server-side; enforce property ownership.                 |
 | Subscription API   | Not built                | Never trust client price, customer ID, subscription ID, or status.                            |
 | Stripe checkout    | Not built                | Create sessions server-side from known price IDs and session user.                            |
 | Stripe webhook     | Not built                | Verify Stripe signature before parsing business intent; make event handling idempotent.       |
