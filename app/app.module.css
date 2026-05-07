@@ -194,6 +194,22 @@
   box-shadow: 0 0 0 3px rgba(30, 107, 87, 0.18);
 }
 
+.propertyForm input[aria-invalid='true'],
+.propertyForm textarea[aria-invalid='true'],
+.removeForm input[aria-invalid='true'] {
+  border-color: #b33a31;
+}
+
+.fieldError {
+  color: #8d261d;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.fieldErrorPlaceholder {
+  display: none;
+}
+
 .fieldGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -235,6 +251,31 @@
 
 .buttonDanger:hover {
   border-color: #9c2f24;
+}
+
+.removeForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  border-top: 1px solid #e1e7e2;
+  padding-top: 14px;
+}
+
+.removeForm label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #53645e;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.removeForm input {
+  width: 17px;
+  height: 17px;
+  accent-color: #8d261d;
 }
 
 .successNotice,
