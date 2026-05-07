@@ -1,5 +1,8 @@
+import 'dotenv/config';
+
 import { afterAll, describe, expect, it } from 'vitest';
 
+import { auth } from '../../auth';
 import { createPrismaTestClient } from './prisma-test-client';
 
 const prisma = createPrismaTestClient();
@@ -117,15 +120,16 @@ describe('seed data contract', () => {
     ]);
   });
 
-  it('stores password hashes for local sample logins', async () => {
-    const credentials = await prisma.passwordCredential.findMany({
+  it('stores credential account password hashes for local sample logins', async () => {
+    const credentials = await prisma.account.findMany({
       orderBy: {
         user: {
           email: 'asc',
         },
       },
       select: {
-        passwordHash: true,
+        password: true,
+        providerId: true,
         user: {
           select: {
             email: true,
@@ -146,7 +150,8 @@ describe('seed data contract', () => {
       expect.arrayContaining(
         sampleEmails.map((email) =>
           expect.objectContaining({
-            passwordHash: expect.not.stringContaining('BinRun-local-2026'),
+            password: expect.not.stringContaining('BinRun-local-2026'),
+            providerId: 'credential',
             user: {
               email,
             },
@@ -154,6 +159,24 @@ describe('seed data contract', () => {
         )
       )
     );
+  });
+
+  it('allows a seeded customer to sign in through Better Auth', async () => {
+    const result = await auth.api.signInEmail({
+      body: {
+        email: 'angela@example.com',
+        password: 'BinRun-local-2026',
+      },
+      headers: new Headers({
+        host: 'localhost:3000',
+      }),
+    });
+
+    expect(result.user).toMatchObject({
+      email: 'angela@example.com',
+      role: 'CUSTOMER',
+    });
+    expect(result.token).toEqual(expect.any(String));
   });
 
   it('uses only the service-facing bin options', async () => {

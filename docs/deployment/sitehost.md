@@ -70,9 +70,8 @@ DATABASE_URL=mysql://...
 Required when auth routes are enabled:
 
 ```txt
-AUTH_SECRET=...
-AUTH_URL=https://binrun.co.nz
-AUTH_TRUST_HOST=true
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=https://binrun.co.nz
 ```
 
 `DATABASE_URL` should use the SiteHost integrated database hostname, database name, username, and URL-encoded password.

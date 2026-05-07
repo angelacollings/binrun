@@ -107,11 +107,13 @@ async function main() {
     await prisma.user.create({
       data: {
         email: 'angela@example.com',
-        emailVerified: new Date(),
+        emailVerified: true,
         name: 'Angela Collings',
-        passwordCredential: {
+        accounts: {
           create: {
-            passwordHash: samplePasswordHash,
+            accountId: 'angela@example.com',
+            providerId: 'credential',
+            password: samplePasswordHash,
           },
         },
         role: 'CUSTOMER',
@@ -186,11 +188,13 @@ async function main() {
     await prisma.user.create({
       data: {
         email: 'sam@example.com',
-        emailVerified: new Date(),
+        emailVerified: true,
         name: 'Sam Taylor',
-        passwordCredential: {
+        accounts: {
           create: {
-            passwordHash: samplePasswordHash,
+            accountId: 'sam@example.com',
+            providerId: 'credential',
+            password: samplePasswordHash,
           },
         },
         role: 'CUSTOMER',
@@ -230,11 +234,13 @@ async function main() {
     await prisma.user.create({
       data: {
         email: 'worker@example.com',
-        emailVerified: new Date(),
+        emailVerified: true,
         name: 'BinRun Worker',
-        passwordCredential: {
+        accounts: {
           create: {
-            passwordHash: samplePasswordHash,
+            accountId: 'worker@example.com',
+            providerId: 'credential',
+            password: samplePasswordHash,
           },
         },
         role: 'WORKER',
@@ -244,11 +250,13 @@ async function main() {
     await prisma.user.create({
       data: {
         email: 'admin@example.com',
-        emailVerified: new Date(),
+        emailVerified: true,
         name: 'BinRun Admin',
-        passwordCredential: {
+        accounts: {
           create: {
-            passwordHash: samplePasswordHash,
+            accountId: 'admin@example.com',
+            providerId: 'credential',
+            password: samplePasswordHash,
           },
         },
         role: 'ADMIN',

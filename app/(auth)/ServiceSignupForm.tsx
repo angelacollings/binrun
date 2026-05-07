@@ -8,10 +8,12 @@ type ServiceSignupFormProps = {
 };
 
 export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
-  const errorMessage =
-    error === 'incomplete'
-      ? 'Add your contact details, password, service address, and at least one bin type.'
-      : undefined;
+  const errorMessages: Record<string, string> = {
+    'account-unavailable': 'We could not create an account with those details.',
+    incomplete: 'Add your contact details, password, service address, and at least one bin type.',
+    'too-many-attempts': 'Too many signup attempts. Wait a few minutes, then try again.',
+  };
+  const errorMessage = error ? errorMessages[error] : undefined;
 
   return (
     <main className={styles.signupPage}>

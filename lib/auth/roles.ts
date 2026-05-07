@@ -1,4 +1,4 @@
-import type { Session } from 'next-auth';
+import { headers } from 'next/headers';
 import type { UserRole } from '@prisma/client';
 
 import { auth } from '@/auth';
@@ -22,8 +22,16 @@ export class AuthorizationError extends Error {
   }
 }
 
+export async function getSession() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  return session as AuthenticatedSession | null;
+}
+
 export async function requireUser() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session?.user?.id) {
     throw new AuthenticationError();
@@ -54,9 +62,23 @@ export async function requireAdmin() {
   return requireRole(adminRoles);
 }
 
-export type AuthenticatedSession = Session & {
-  user: Session['user'] & {
+export type AuthenticatedSession = {
+  session: {
     id: string;
+    token: string;
+    userId: string;
+    expiresAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  user: {
+    id: string;
+    email: string;
+    emailVerified: boolean;
+    name: string;
+    image?: string | null;
     role: UserRole;
+    createdAt: Date;
+    updatedAt: Date;
   };
 };

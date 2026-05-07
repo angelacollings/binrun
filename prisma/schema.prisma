@@ -10,19 +10,18 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String?
-  email              String?             @unique
-  emailVerified      DateTime?
-  image              String?
-  role               UserRole            @default(CUSTOMER)
-  accounts           Account[]
-  sessions           Session[]
-  passwordCredential PasswordCredential?
-  properties         Property[]
-  subscriptions      Subscription[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  image         String?
+  role          UserRole       @default(CUSTOMER)
+  accounts      Account[]
+  sessions      Session[]
+  properties    Property[]
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Property {
@@ -78,49 +77,47 @@ model Subscription {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?   @db.VarChar(255)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model VerificationToken {
+model Verification {
+  id         String    @id @default(cuid())
   identifier String
-  token      String
-  expires    DateTime
+  value      String
+  expiresAt DateTime
+  createdAt DateTime?  @default(now())
+  updatedAt DateTime?  @updatedAt
 
-  @@unique([identifier, token])
-}
-
-model PasswordCredential {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  passwordHash String   @db.VarChar(255)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  @@index([identifier])
 }
 
 model ServiceArea {

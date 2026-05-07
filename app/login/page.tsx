@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
-import { auth } from '@/auth';
 import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
+import { getSession } from '@/lib/auth/roles';
 
 import { CustomerLoginForm } from '../(auth)/CustomerLoginForm';
 
@@ -17,7 +17,7 @@ function firstValue(value: string | string[] | undefined) {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await auth();
+  const session = await getSession();
 
   if (session?.user) {
     redirect(homePathForRole(session.user.role));

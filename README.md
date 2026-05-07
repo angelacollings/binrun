@@ -159,15 +159,15 @@ In production, the recommended setup is to configure environment variables in th
 Current validation behavior:
 
 - `DATABASE_URL` is required before Prisma connects.
-- Auth, Stripe, and email settings are validated when their subsystem reads them.
+- Better Auth, Stripe, and email settings are validated when their subsystem reads them.
 - Production rejects placeholder secret values.
 - Build/startup rejects secret-like `NEXT_PUBLIC_` variable names.
 
 Current requirement groups:
 
 - Required now: `DATABASE_URL`
-- Required when auth lands: `AUTH_SECRET`
-- Recommended for deployed auth behind SiteHost: `AUTH_URL`, `AUTH_TRUST_HOST=true`
+- Required when auth lands: `BETTER_AUTH_SECRET`
+- Required for deployed auth behind SiteHost: `BETTER_AUTH_URL`
 - Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 - Required when notifications land: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
 

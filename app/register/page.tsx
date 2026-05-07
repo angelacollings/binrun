@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
-import { auth } from '@/auth';
 import { homePathForRole } from '@/lib/auth/routes';
+import { getSession } from '@/lib/auth/roles';
 
 import { ServiceSignupForm } from '../(auth)/ServiceSignupForm';
 
@@ -16,7 +16,7 @@ function firstValue(value: string | string[] | undefined) {
 }
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
-  const session = await auth();
+  const session = await getSession();
 
   if (session?.user) {
     redirect(homePathForRole(session.user.role));
