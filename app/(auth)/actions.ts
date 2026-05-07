@@ -77,6 +77,7 @@ async function signInWithPassword(
       body: {
         email,
         password,
+        rememberMe: false,
       },
       headers: requestHeaders,
     });

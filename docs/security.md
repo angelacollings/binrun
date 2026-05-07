@@ -10,6 +10,7 @@ Update it whenever a feature adds a new route, API, integration, secret, or admi
 - [x] Secret-like `NEXT_PUBLIC_` environment variable names are rejected at startup/build.
 - [x] Prisma uses a server-only MariaDB adapter and requires `DATABASE_URL` before database access.
 - [x] Better Auth manages auth routes, credential verification, cookie-backed sessions, and session revocation.
+- [x] Auth sessions are short-lived: browser-session cookies, 30-minute server expiry, and no automatic refresh.
 - [x] Database health checks return a generic public error message.
 - [x] Seed data refuses to run in `NODE_ENV=production`.
 - [x] Seed data refuses non-local database hosts by default.
@@ -55,6 +56,13 @@ The MVP supplemental auth throttle is implemented in `lib/auth/throttle.ts` and 
 It allows five attempts per IP/email/action for a 15-minute window in each Node.js process.
 
 This is a baseline control, not a complete distributed rate limiter. Before scaling beyond a single app process, replace or back it with shared infrastructure such as Redis, a managed edge/WAF rule, or the hosting platform's request-rate controls.
+
+## Session Policy
+
+Email/password sign-in uses `rememberMe: false`, so the browser should discard the Better Auth session cookie when the browser session ends.
+The database-backed session also expires after 30 minutes and `disableSessionRefresh` prevents activity from rolling that expiry forward.
+
+Navigating away from BinRun in the same browser session will not sign the user out by itself. Closing the browser session, pressing sign out, clearing site data, or reaching the 30-minute server expiry will require a fresh login.
 
 ## Pre-Launch Review
 

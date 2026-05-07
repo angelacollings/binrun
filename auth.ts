@@ -41,8 +41,9 @@ export const auth = betterAuth({
   },
   secret: authEnv.authSecret,
   session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
+    disableSessionRefresh: true,
+    expiresIn: 60 * 30,
+    freshAge: 60 * 10,
   },
   trustedOrigins: authEnv.authUrl ? [authEnv.authUrl] : undefined,
   user: {
