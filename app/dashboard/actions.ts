@@ -39,12 +39,29 @@ function propertyIdFromForm(formData: FormData) {
   return propertyId;
 }
 
+function invalidPropertyRedirect(field: string, propertyId?: string): never {
+  const params = new URLSearchParams({
+    propertyField: field,
+    properties: 'invalid',
+  });
+
+  if (propertyId) {
+    params.set('propertyId', propertyId);
+  }
+
+  redirect(`/dashboard?${params.toString()}`);
+}
+
+function firstIssueField(error: { issues: { path: PropertyKey[] }[] }) {
+  return String(error.issues[0]?.path[0] ?? 'form');
+}
+
 export async function createProperty(formData: FormData) {
   const session = await requireCustomer();
   const parsedInput = createPropertySchema.safeParse(propertyInputFromForm(formData));
 
   if (!parsedInput.success) {
-    redirect('/dashboard?properties=invalid');
+    invalidPropertyRedirect(firstIssueField(parsedInput.error), 'new');
   }
 
   await createUserProperty(session.user.id, parsedInput.data);
@@ -58,7 +75,7 @@ export async function updateProperty(formData: FormData) {
   const parsedInput = updatePropertySchema.safeParse(propertyInputFromForm(formData));
 
   if (!parsedInput.success) {
-    redirect('/dashboard?properties=invalid');
+    invalidPropertyRedirect(firstIssueField(parsedInput.error), propertyId);
   }
 
   const property = await updateUserProperty(session.user.id, propertyId, parsedInput.data);
@@ -74,6 +91,12 @@ export async function updateProperty(formData: FormData) {
 export async function deactivateProperty(formData: FormData) {
   const session = await requireCustomer();
   const propertyId = propertyIdFromForm(formData);
+  const confirmed = formData.get('confirmRemove') === 'on';
+
+  if (!confirmed) {
+    redirect(`/dashboard?properties=invalid&propertyId=${propertyId}&propertyField=confirmRemove`);
+  }
+
   const deactivated = await deactivateUserProperty(session.user.id, propertyId);
 
   if (!deactivated) {

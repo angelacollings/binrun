@@ -7,6 +7,8 @@ import { createProperty, deactivateProperty, updateProperty } from './actions';
 
 type DashboardPageProps = {
   searchParams: Promise<{
+    propertyField?: string;
+    propertyId?: string;
     properties?: string;
   }>;
 };
@@ -27,12 +29,29 @@ function propertyMessage(value: string | undefined) {
   return value ? propertyMessages[value] : undefined;
 }
 
+function fieldError(
+  propertyStatus: string | undefined,
+  errorPropertyId: string | undefined,
+  errorField: string | undefined,
+  currentPropertyId: string,
+  field: string
+) {
+  if (
+    propertyStatus === 'invalid' &&
+    errorPropertyId === currentPropertyId &&
+    errorField === field
+  ) {
+    return 'Check this field.';
+  }
+
+  return undefined;
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const session = await requireCustomer();
-  const [{ properties: propertyStatus }, properties] = await Promise.all([
-    searchParams,
-    listUserProperties(session.user.id),
-  ]);
+  const [{ properties: propertyStatus, propertyField, propertyId }, properties] = await Promise.all(
+    [searchParams, listUserProperties(session.user.id)]
+  );
   const message = propertyMessage(propertyStatus);
 
   return (
@@ -82,10 +101,32 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       <label>
                         <span>Label</span>
                         <input
+                          aria-describedby={`property-${property.id}-label-error`}
+                          aria-invalid={
+                            fieldError(
+                              propertyStatus,
+                              propertyId,
+                              propertyField,
+                              property.id,
+                              'label'
+                            )
+                              ? true
+                              : undefined
+                          }
                           defaultValue={textValue(property.label)}
                           maxLength={80}
                           name="label"
                           placeholder="Home"
+                        />
+                        <FieldError
+                          id={`property-${property.id}-label-error`}
+                          message={fieldError(
+                            propertyStatus,
+                            propertyId,
+                            propertyField,
+                            property.id,
+                            'label'
+                          )}
                         />
                       </label>
                       <label>
@@ -102,11 +143,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     <label>
                       <span>Address line 1</span>
                       <input
+                        aria-describedby={`property-${property.id}-addressLine1-error`}
+                        aria-invalid={
+                          fieldError(
+                            propertyStatus,
+                            propertyId,
+                            propertyField,
+                            property.id,
+                            'addressLine1'
+                          )
+                            ? true
+                            : undefined
+                        }
                         autoComplete="address-line1"
                         defaultValue={property.addressLine1}
                         maxLength={120}
                         name="addressLine1"
                         required
+                      />
+                      <FieldError
+                        id={`property-${property.id}-addressLine1-error`}
+                        message={fieldError(
+                          propertyStatus,
+                          propertyId,
+                          propertyField,
+                          property.id,
+                          'addressLine1'
+                        )}
                       />
                     </label>
                     <label>
@@ -131,11 +194,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       <label>
                         <span>City</span>
                         <input
+                          aria-describedby={`property-${property.id}-city-error`}
+                          aria-invalid={
+                            fieldError(
+                              propertyStatus,
+                              propertyId,
+                              propertyField,
+                              property.id,
+                              'city'
+                            )
+                              ? true
+                              : undefined
+                          }
                           autoComplete="address-level1"
                           defaultValue={property.city}
                           maxLength={80}
                           name="city"
                           required
+                        />
+                        <FieldError
+                          id={`property-${property.id}-city-error`}
+                          message={fieldError(
+                            propertyStatus,
+                            propertyId,
+                            propertyField,
+                            property.id,
+                            'city'
+                          )}
                         />
                       </label>
                     </div>
@@ -152,14 +237,43 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       <button className={styles.buttonPrimary} type="submit">
                         Save changes
                       </button>
-                      <button
-                        className={styles.buttonDanger}
-                        formAction={deactivateProperty}
-                        type="submit"
-                      >
-                        Remove
-                      </button>
                     </div>
+                  </form>
+                  <form className={styles.removeForm} action={deactivateProperty}>
+                    <input name="propertyId" type="hidden" value={property.id} />
+                    <label>
+                      <input
+                        aria-describedby={`property-${property.id}-confirmRemove-error`}
+                        aria-invalid={
+                          fieldError(
+                            propertyStatus,
+                            propertyId,
+                            propertyField,
+                            property.id,
+                            'confirmRemove'
+                          )
+                            ? true
+                            : undefined
+                        }
+                        name="confirmRemove"
+                        required
+                        type="checkbox"
+                      />
+                      <span>Confirm removal from active service</span>
+                    </label>
+                    <FieldError
+                      id={`property-${property.id}-confirmRemove-error`}
+                      message={fieldError(
+                        propertyStatus,
+                        propertyId,
+                        propertyField,
+                        property.id,
+                        'confirmRemove'
+                      )}
+                    />
+                    <button className={styles.buttonDanger} type="submit">
+                      Remove
+                    </button>
                   </form>
                 </article>
               ))}
@@ -180,7 +294,28 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </label>
             <label>
               <span>Address line 1</span>
-              <input autoComplete="address-line1" maxLength={120} name="addressLine1" required />
+              <input
+                aria-describedby="new-property-addressLine1-error"
+                aria-invalid={
+                  fieldError(propertyStatus, propertyId, propertyField, 'new', 'addressLine1')
+                    ? true
+                    : undefined
+                }
+                autoComplete="address-line1"
+                maxLength={120}
+                name="addressLine1"
+                required
+              />
+              <FieldError
+                id="new-property-addressLine1-error"
+                message={fieldError(
+                  propertyStatus,
+                  propertyId,
+                  propertyField,
+                  'new',
+                  'addressLine1'
+                )}
+              />
             </label>
             <label>
               <span>Address line 2</span>
@@ -204,11 +339,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <label>
               <span>City</span>
               <input
+                aria-describedby="new-property-city-error"
+                aria-invalid={
+                  fieldError(propertyStatus, propertyId, propertyField, 'new', 'city')
+                    ? true
+                    : undefined
+                }
                 autoComplete="address-level1"
                 defaultValue="Whangarei"
                 maxLength={80}
                 name="city"
                 required
+              />
+              <FieldError
+                id="new-property-city-error"
+                message={fieldError(propertyStatus, propertyId, propertyField, 'new', 'city')}
               />
             </label>
             <label>
@@ -222,5 +367,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </aside>
       </section>
     </Shell>
+  );
+}
+
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  return message ? (
+    <span className={styles.fieldError} id={id}>
+      {message}
+    </span>
+  ) : (
+    <span className={styles.fieldErrorPlaceholder} id={id} />
   );
 }
