@@ -12,6 +12,18 @@ const sampleEmails = [...sampleCustomerEmails, ...sampleStaffEmails];
 const samplePassword = 'BinRun-local-2026';
 const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
 
+function addDays(date, days) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function localScheduleDate(daysFromToday, hour, minute = 0) {
+  const date = addDays(new Date(), daysFromToday);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+}
+
 function assertSafeSeedTarget({ databaseUrl, nodeEnv }) {
   if (nodeEnv === 'production') {
     throw new Error('Refusing to seed while NODE_ENV=production.');
@@ -229,6 +241,68 @@ async function main() {
           },
         },
       },
+    });
+
+    const runProperties = await prisma.property.findMany({
+      orderBy: {
+        label: 'asc',
+      },
+      select: {
+        bins: {
+          orderBy: {
+            type: 'asc',
+          },
+          select: {
+            id: true,
+            type: true,
+          },
+        },
+        id: true,
+        label: true,
+      },
+      where: {
+        user: {
+          email: {
+            in: sampleCustomerEmails,
+          },
+        },
+      },
+    });
+
+    const propertyDayOffsets = {
+      Airbnb: 0,
+      Home: 0,
+      Rental: 1,
+    };
+    const propertyStartHours = {
+      Airbnb: 9,
+      Home: 7,
+      Rental: 8,
+    };
+    const binStatus = {
+      GREEN_WASTE_WHEELIE: 'PLANNED',
+      RECYCLING_BINS: 'PLANNED',
+      RUBBISH_BAGS: 'IN_PROGRESS',
+      RUBBISH_WHEELIE: 'MISSED',
+    };
+
+    await prisma.serviceVisit.createMany({
+      data: runProperties.flatMap((property) =>
+        property.bins.map((bin, index) => ({
+          binId: bin.id,
+          notes:
+            bin.type === 'RUBBISH_WHEELIE'
+              ? 'Customer reported the wheelie bin may be behind the side fence.'
+              : null,
+          propertyId: property.id,
+          scheduledFor: localScheduleDate(
+            propertyDayOffsets[property.label] ?? 2,
+            (propertyStartHours[property.label] ?? 9) + index,
+            index % 2 === 0 ? 0 : 30
+          ),
+          status: binStatus[bin.type] ?? 'PLANNED',
+        }))
+      ),
     });
 
     await prisma.user.create({
