@@ -15,7 +15,7 @@ export default function PricingPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <Link className={styles.brand} href="/">
-          BinRun
+          <img alt="BinRun" src="/brand/binrun-logo.svg" />
         </Link>
         <nav aria-label="Primary navigation">
           <Link href="/">Home</Link>
@@ -49,6 +49,7 @@ export default function PricingPage() {
 
         <section className={styles.helpGrid} aria-label="Pricing help">
           <article>
+            <img alt="" aria-hidden="true" src="/brand/icon-support.svg" />
             <h2>Need help signing up?</h2>
             <p>
               Email <a href="mailto:admin@binrun.co.nz">admin@binrun.co.nz</a> and we can help
@@ -56,6 +57,7 @@ export default function PricingPage() {
             </p>
           </article>
           <article>
+            <img alt="" aria-hidden="true" src="/brand/icon-secure.svg" />
             <h2>Multiple properties</h2>
             <p>
               We can quote a catered package for landlords, blocks of flats, body corporates, or

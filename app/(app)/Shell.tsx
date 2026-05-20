@@ -11,7 +11,9 @@ export function Shell({ children }: ShellProps) {
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
-        <div className={styles.brand}>BinRun</div>
+        <div className={styles.brand}>
+          <img alt="BinRun" src="/brand/binrun-logo.svg" />
+        </div>
         <form action={logout}>
           <button className={styles.button} type="submit">
             Sign out

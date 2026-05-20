@@ -8,7 +8,7 @@ export default function Home() {
     <div className={styles.page}>
       <header className={styles.header}>
         <Link className={styles.brand} href="/">
-          BinRun
+          <img alt="BinRun" src="/brand/binrun-logo.svg" />
         </Link>
         <nav aria-label="Primary navigation">
           <Link href="#how-it-works">How it works</Link>
@@ -34,39 +34,27 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className={styles.heroScene} aria-hidden="true">
-            <div className={styles.sun} />
-            <div className={styles.house}>
-              <div className={styles.roof} />
-              <div className={styles.wall}>
-                <span />
-              </div>
-            </div>
-            <div className={styles.worker}>
-              <div />
-              <span />
-            </div>
-            <div className={styles.binRow}>
-              <span className={styles.greenBin} />
-              <span className={styles.blueBin} />
-              <span className={styles.redBin} />
-            </div>
+          <div className={styles.heroScene}>
+            <img
+              alt="BinRun worker standing with one green wheelie bin outside a home"
+              src="/images/binrun-hero.png"
+            />
           </div>
         </section>
 
         <section className={styles.features} aria-label="Service benefits">
           <article>
-            <span>1</span>
+            <img alt="" aria-hidden="true" src="/brand/icon-convenient.svg" />
             <h2>Convenient service</h2>
             <p>We set out and return bins for your regular collection day.</p>
           </article>
           <article>
-            <span>2</span>
+            <img alt="" aria-hidden="true" src="/brand/icon-seniors.svg" />
             <h2>Helpful for seniors</h2>
             <p>Online signup is optional. Email us and we can arrange setup with you.</p>
           </article>
           <article>
-            <span>3</span>
+            <img alt="" aria-hidden="true" src="/brand/icon-rental.svg" />
             <h2>Rental friendly</h2>
             <p>Tailored packages are available for multiple properties or larger sites.</p>
           </article>

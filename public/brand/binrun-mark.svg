@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">BinRun mark</title>
+  <rect width="64" height="64" rx="14" fill="#2c7a46" />
+  <path
+    d="M20 17h24l3 7H17l3-7Zm-1 11h26l-3 24H22L19 28Z"
+    fill="#fffdf9"
+  />
+  <path
+    d="M30 41h-6l4-7 3 2-2 3h4v-4l7 6-7 6v-4h-3Zm6-18 3 5h-4l-2-3-3 5-3-2 5-8h2c.8 0 1.5.4 2 1Zm8 14-3 2-2-4-3 2-1-9 9 3-3 2 3 4Z"
+    fill="#2c7a46"
+  />
+</svg>

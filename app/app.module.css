@@ -16,8 +16,13 @@
 }
 
 .brand {
-  font-size: 18px;
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand img {
+  width: 130px;
+  height: auto;
 }
 
 .main {
