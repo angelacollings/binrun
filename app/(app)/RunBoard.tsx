@@ -1,5 +1,6 @@
 import type { ServiceVisitStatus } from '@prisma/client';
 
+import { updateRunBoardVisit } from './run-board-actions';
 import styles from '../app.module.css';
 
 type RunBoardVisit = {
@@ -12,6 +13,7 @@ type RunBoardVisit = {
   } | null;
   completedAt: Date | null;
   notes: string | null;
+  statusNote: string | null;
   property: {
     addressLine1: string;
     addressLine2: string | null;
@@ -35,11 +37,14 @@ type RunBoardProps = {
 };
 
 const statusLabels: Record<ServiceVisitStatus, string> = {
+  BLOCKED: 'Blocked',
   CANCELED: 'Canceled',
   COMPLETED: 'Completed',
+  FAILED: 'Failed',
   IN_PROGRESS: 'In progress',
   MISSED: 'Missed',
   PLANNED: 'Planned',
+  SKIPPED: 'Skipped',
 };
 
 const binLabels: Record<string, string> = {
@@ -133,6 +138,32 @@ export function RunBoard({ visits }: RunBoardProps) {
                   <p className={styles.runNote}>{visit.property.collectionNotes}</p>
                 ) : null}
                 {visit.notes ? <p className={styles.runNote}>{visit.notes}</p> : null}
+                {visit.statusNote ? <p className={styles.runNote}>{visit.statusNote}</p> : null}
+                <form className={styles.runStatusForm} action={updateRunBoardVisit}>
+                  <input name="visitId" type="hidden" value={visit.id} />
+                  <label>
+                    <span>Status</span>
+                    <select defaultValue={visit.status} name="status">
+                      {Object.entries(statusLabels).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Note</span>
+                    <input
+                      defaultValue={visit.statusNote ?? ''}
+                      maxLength={500}
+                      name="statusNote"
+                      placeholder="Access issue, completion note, or exception"
+                    />
+                  </label>
+                  <button className={styles.buttonPrimary} type="submit">
+                    Update visit
+                  </button>
+                </form>
               </div>
             </article>
           ))}

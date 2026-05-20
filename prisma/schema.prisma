@@ -25,24 +25,25 @@ model User {
 }
 
 model Property {
-  id              String         @id @default(cuid())
+  id              String            @id @default(cuid())
   userId          String
   serviceAreaId   String?
   label           String?
   addressLine1    String
   addressLine2    String?
   suburb          String?
-  city            String         @default("Whangarei")
+  city            String            @default("Whangarei")
   postcode        String?
   collectionNotes String?
-  active          Boolean        @default(true)
+  active          Boolean           @default(true)
   deactivatedAt   DateTime?
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  serviceArea     ServiceArea?   @relation(fields: [serviceAreaId], references: [id], onDelete: SetNull)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceArea     ServiceArea?      @relation(fields: [serviceAreaId], references: [id], onDelete: SetNull)
   bins            Bin[]
+  services        PropertyService[]
   serviceVisits   ServiceVisit[]
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@index([userId])
   @@index([userId, active])
@@ -68,16 +69,68 @@ model Bin {
 model Subscription {
   id                   String             @id @default(cuid())
   userId               String
+  propertyServiceId    String?
   status               SubscriptionStatus @default(PENDING)
   stripeCustomerId     String?            @unique
   stripeSubscriptionId String?            @unique
   currentPeriodEnd     DateTime?
   canceledAt           DateTime?
   user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyService      PropertyService?   @relation(fields: [propertyServiceId], references: [id], onDelete: SetNull)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
   @@index([userId])
+  @@index([propertyServiceId])
+}
+
+model ServicePackage {
+  id               String             @id @default(cuid())
+  code             ServicePackageCode @unique
+  name             String
+  description      String             @db.Text
+  billingMode      ServiceBillingMode
+  active           Boolean            @default(true)
+  sortOrder        Int                @default(0)
+  propertyServices PropertyService[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model PropertyService {
+  id            String                @id @default(cuid())
+  propertyId    String
+  packageId     String
+  status        PropertyServiceStatus @default(PENDING)
+  serviceDay    CollectionDay?
+  frequency     CollectionFrequency   @default(WEEKLY)
+  customNotes   String?               @db.Text
+  startedAt     DateTime?
+  canceledAt    DateTime?
+  property      Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  package       ServicePackage        @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  items         PropertyServiceItem[]
+  subscriptions Subscription[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([propertyId])
+  @@index([packageId])
+  @@index([status])
+}
+
+model PropertyServiceItem {
+  id                String          @id @default(cuid())
+  propertyServiceId String
+  type              ServiceItemType
+  binType           BinType?
+  quantity          Int             @default(1)
+  propertyService   PropertyService @relation(fields: [propertyServiceId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([propertyServiceId])
+  @@index([binType])
 }
 
 model Account {
@@ -154,21 +207,24 @@ model CollectionSchedule {
 }
 
 model ServiceVisit {
-  id           String             @id @default(cuid())
-  propertyId   String
-  binId        String?
-  scheduledFor DateTime
-  status       ServiceVisitStatus @default(PLANNED)
-  completedAt  DateTime?
-  notes        String?            @db.Text
-  property     Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  bin          Bin?               @relation(fields: [binId], references: [id], onDelete: SetNull)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id              String             @id @default(cuid())
+  propertyId      String
+  binId           String?
+  scheduledFor    DateTime
+  status          ServiceVisitStatus @default(PLANNED)
+  statusNote      String?            @db.Text
+  lastUpdatedById String?
+  completedAt     DateTime?
+  notes           String?            @db.Text
+  property        Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bin             Bin?               @relation(fields: [binId], references: [id], onDelete: SetNull)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([propertyId, scheduledFor])
   @@index([binId])
   @@index([status, scheduledFor])
+  @@index([lastUpdatedById])
 }
 
 model WebhookEvent {
@@ -226,10 +282,39 @@ enum CollectionFrequency {
   ON_DEMAND
 }
 
+enum ServicePackageCode {
+  REGULAR_RUN
+  REGULAR_RUN_PLUS_WASH
+  CLEAN_BIN_VISIT
+  ONE_OFF_CLEAN
+  CUSTOM
+}
+
+enum ServiceBillingMode {
+  SUBSCRIPTION
+  ONE_OFF
+  CUSTOM
+}
+
+enum PropertyServiceStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  CANCELED
+}
+
+enum ServiceItemType {
+  BIN_SET_OUT_RETURN
+  BIN_CLEANING
+}
+
 enum ServiceVisitStatus {
   PLANNED
   IN_PROGRESS
   COMPLETED
+  BLOCKED
+  SKIPPED
+  FAILED
   MISSED
   CANCELED
 }

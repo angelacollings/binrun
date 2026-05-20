@@ -112,12 +112,36 @@ describe('environment validation', () => {
     expect(() =>
       getStripeEnv({
         NODE_ENV: 'production',
+        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_placeholder_clean_bin_visit',
+        STRIPE_PRICE_ONE_OFF_CLEAN: 'price_placeholder_one_off_clean',
+        STRIPE_PRICE_REGULAR_RUN: 'price_placeholder_regular_run',
+        STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_placeholder_regular_run_plus_wash',
         STRIPE_SECRET_KEY: 'sk_test_placeholder',
         STRIPE_WEBHOOK_SECRET: 'whsec_placeholder',
       })
     ).toThrow(
       'Production environment variable STRIPE_SECRET_KEY must not use a placeholder value.'
     );
+  });
+
+  it('reads Stripe package price IDs', () => {
+    expect(
+      getStripeEnv({
+        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_123_clean',
+        STRIPE_PRICE_ONE_OFF_CLEAN: 'price_123_once',
+        STRIPE_PRICE_REGULAR_RUN: 'price_123_regular',
+        STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_123_wash',
+        STRIPE_SECRET_KEY: 'sk_test_123',
+        STRIPE_WEBHOOK_SECRET: 'whsec_123',
+      })
+    ).toEqual({
+      cleanBinVisitPriceId: 'price_123_clean',
+      oneOffCleanPriceId: 'price_123_once',
+      regularRunPlusWashPriceId: 'price_123_wash',
+      regularRunPriceId: 'price_123_regular',
+      stripeSecretKey: 'sk_test_123',
+      stripeWebhookSecret: 'whsec_123',
+    });
   });
 
   it('validates email port as a positive integer', () => {

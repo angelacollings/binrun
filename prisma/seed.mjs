@@ -11,6 +11,61 @@ const sampleStaffEmails = ['worker@example.com', 'admin@example.com'];
 const sampleEmails = [...sampleCustomerEmails, ...sampleStaffEmails];
 const samplePassword = 'BinRun-local-2026';
 const localSeedHosts = new Set(['localhost', '127.0.0.1', '::1', 'db']);
+const servicePackageDefinitions = [
+  {
+    billingMode: 'SUBSCRIPTION',
+    code: 'REGULAR_RUN',
+    description:
+      'Weekly set-out and return for a standard home package of one wheelie bin and two recycling bins at one service address.',
+    items: [
+      { binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_SET_OUT_RETURN' },
+      { binType: 'RECYCLING_BINS', quantity: 2, type: 'BIN_SET_OUT_RETURN' },
+    ],
+    name: 'Regular Run',
+    sortOrder: 10,
+  },
+  {
+    billingMode: 'SUBSCRIPTION',
+    code: 'REGULAR_RUN_PLUS_WASH',
+    description:
+      'Weekly set-out and return with scheduled cleaning for households that want the regular run handled and the bins kept fresher.',
+    items: [
+      { binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_SET_OUT_RETURN' },
+      { binType: 'RECYCLING_BINS', quantity: 2, type: 'BIN_SET_OUT_RETURN' },
+      { binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_CLEANING' },
+      { binType: 'RECYCLING_BINS', quantity: 2, type: 'BIN_CLEANING' },
+    ],
+    name: 'Regular Run + Wash',
+    sortOrder: 20,
+  },
+  {
+    billingMode: 'SUBSCRIPTION',
+    code: 'CLEAN_BIN_VISIT',
+    description:
+      'Recurring cleaning visit for customers who only need bin washing, not weekly set-out and return.',
+    items: [{ binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_CLEANING' }],
+    name: 'Clean Bin Visit',
+    sortOrder: 30,
+  },
+  {
+    billingMode: 'ONE_OFF',
+    code: 'ONE_OFF_CLEAN',
+    description:
+      'A single cleaning visit for a bin that needs a reset without starting a weekly subscription.',
+    items: [{ binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_CLEANING' }],
+    name: 'One-Off Clean',
+    sortOrder: 40,
+  },
+  {
+    billingMode: 'CUSTOM',
+    code: 'CUSTOM',
+    description:
+      'Tailored service for multiple properties, rental blocks, body corporates, or larger service needs.',
+    items: [],
+    name: 'Custom Package',
+    sortOrder: 50,
+  },
+];
 
 function addDays(date, days) {
   const nextDate = new Date(date);
@@ -22,6 +77,10 @@ function localScheduleDate(daysFromToday, hour, minute = 0) {
   const date = addDays(new Date(), daysFromToday);
   date.setHours(hour, minute, 0, 0);
   return date;
+}
+
+function servicePackageByCode(code) {
+  return servicePackageDefinitions.find((servicePackage) => servicePackage.code === code);
 }
 
 function assertSafeSeedTarget({ databaseUrl, nodeEnv }) {
@@ -116,6 +175,37 @@ async function main() {
       ],
     });
 
+    for (const servicePackage of servicePackageDefinitions) {
+      await prisma.servicePackage.upsert({
+        where: {
+          code: servicePackage.code,
+        },
+        update: {
+          active: true,
+          billingMode: servicePackage.billingMode,
+          description: servicePackage.description,
+          name: servicePackage.name,
+          sortOrder: servicePackage.sortOrder,
+        },
+        create: {
+          active: true,
+          billingMode: servicePackage.billingMode,
+          code: servicePackage.code,
+          description: servicePackage.description,
+          name: servicePackage.name,
+          sortOrder: servicePackage.sortOrder,
+        },
+      });
+    }
+
+    const regularRun = servicePackageByCode('REGULAR_RUN');
+    const regularRunPlusWash = servicePackageByCode('REGULAR_RUN_PLUS_WASH');
+    const cleanBinVisit = servicePackageByCode('CLEAN_BIN_VISIT');
+
+    if (!regularRun || !regularRunPlusWash || !cleanBinVisit) {
+      throw new Error('Missing local service package definitions.');
+    }
+
     await prisma.user.create({
       data: {
         email: 'angela@example.com',
@@ -129,14 +219,6 @@ async function main() {
           },
         },
         role: 'CUSTOMER',
-        subscriptions: {
-          create: {
-            status: 'ACTIVE',
-            stripeCustomerId: 'cus_seed_angela',
-            stripeSubscriptionId: 'sub_seed_angela',
-            currentPeriodEnd: new Date('2026-06-01T00:00:00.000Z'),
-          },
-        },
         properties: {
           create: [
             {
@@ -167,6 +249,26 @@ async function main() {
                   },
                 ],
               },
+              services: {
+                create: {
+                  frequency: 'WEEKLY',
+                  items: {
+                    create: regularRun.items.map((item) => ({
+                      binType: item.binType ?? null,
+                      quantity: item.quantity,
+                      type: item.type,
+                    })),
+                  },
+                  package: {
+                    connect: {
+                      code: regularRun.code,
+                    },
+                  },
+                  serviceDay: 'TUESDAY',
+                  startedAt: new Date('2026-05-01T00:00:00.000Z'),
+                  status: 'ACTIVE',
+                },
+              },
             },
             {
               label: 'Rental',
@@ -191,6 +293,26 @@ async function main() {
                   },
                 ],
               },
+              services: {
+                create: {
+                  frequency: 'WEEKLY',
+                  items: {
+                    create: regularRunPlusWash.items.map((item) => ({
+                      binType: item.binType ?? null,
+                      quantity: item.quantity,
+                      type: item.type,
+                    })),
+                  },
+                  package: {
+                    connect: {
+                      code: regularRunPlusWash.code,
+                    },
+                  },
+                  serviceDay: 'WEDNESDAY',
+                  startedAt: new Date('2026-05-01T00:00:00.000Z'),
+                  status: 'ACTIVE',
+                },
+              },
             },
           ],
         },
@@ -210,11 +332,6 @@ async function main() {
           },
         },
         role: 'CUSTOMER',
-        subscriptions: {
-          create: {
-            status: 'PENDING',
-          },
-        },
         properties: {
           create: {
             label: 'Airbnb',
@@ -238,9 +355,94 @@ async function main() {
                 },
               ],
             },
+            services: {
+              create: {
+                frequency: 'MONTHLY',
+                items: {
+                  create: cleanBinVisit.items.map((item) => ({
+                    binType: item.binType ?? null,
+                    quantity: item.quantity,
+                    type: item.type,
+                  })),
+                },
+                package: {
+                  connect: {
+                    code: cleanBinVisit.code,
+                  },
+                },
+                serviceDay: 'MONDAY',
+                status: 'PENDING',
+              },
+            },
           },
         },
       },
+    });
+
+    const seededServices = await prisma.propertyService.findMany({
+      orderBy: {
+        property: {
+          label: 'asc',
+        },
+      },
+      select: {
+        id: true,
+        package: {
+          select: {
+            code: true,
+          },
+        },
+        property: {
+          select: {
+            label: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        property: {
+          user: {
+            email: {
+              in: sampleCustomerEmails,
+            },
+          },
+        },
+      },
+    });
+
+    const angelaHomeService = seededServices.find(
+      (service) =>
+        service.property.user.email === 'angela@example.com' && service.property.label === 'Home'
+    );
+    const samService = seededServices.find(
+      (service) => service.property.user.email === 'sam@example.com'
+    );
+
+    if (!angelaHomeService || !samService) {
+      throw new Error('Missing seeded property service records.');
+    }
+
+    await prisma.subscription.createMany({
+      data: [
+        {
+          userId: angelaHomeService.property.user.id,
+          propertyServiceId: angelaHomeService.id,
+          status: 'ACTIVE',
+          stripeCustomerId: 'cus_seed_angela',
+          stripeSubscriptionId: 'sub_seed_angela',
+          currentPeriodEnd: new Date('2026-06-01T00:00:00.000Z'),
+        },
+        {
+          userId: samService.property.user.id,
+          propertyServiceId: samService.id,
+          status: 'PENDING',
+        },
+      ],
     });
 
     const runProperties = await prisma.property.findMany({

@@ -2,7 +2,7 @@
 
 **Bin day? Sorted.**
 
-BinRun is a subscription-based service that takes your bins to the roadside and returns them after collection.
+BinRun is a package-based service for regular bin set-out, return, and optional bin cleaning.
 
 Designed for:
 
@@ -15,14 +15,15 @@ Designed for:
 
 ## What We Do
 
-We manage all common bin types in Whangarei:
+BinRun packages the service around the job customers want done:
 
-- Council recycling bins
-- Council prepaid rubbish bags
-- Rubbish wheelie bins (third-party providers)
-- Green wheelie bins (third-party providers)
+- Regular Run
+- Regular Run + Wash
+- Clean Bin Visit
+- One-Off Clean
+- Custom Package for multiple properties, rental blocks, body corporates, and larger sites
 
-BinRun handles the **movement of bins**, not the waste collection itself.
+BinRun handles the **movement and optional cleaning of bins**, not the waste collection itself.
 
 ---
 
@@ -31,7 +32,8 @@ BinRun handles the **movement of bins**, not the waste collection itself.
 - User accounts
 - Subscription management
 - Address/property management
-- Bin type selection
+- Package selection
+- Assisted signup path for customers who prefer email or phone help
 - Collection day tracking
 - Secure online billing
 
@@ -168,7 +170,8 @@ Current requirement groups:
 - Required now: `DATABASE_URL`
 - Required when auth lands: `BETTER_AUTH_SECRET`
 - Required for deployed auth behind SiteHost: `BETTER_AUTH_URL`
-- Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and Stripe
+  package price IDs
 - Required when notifications land: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
 
 The env implementation has a JavaScript core (`lib/env.mjs`) plus typed TypeScript

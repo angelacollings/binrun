@@ -30,6 +30,9 @@ describe('seed data contract', () => {
       serviceAreas,
       collectionSchedules,
       serviceVisits,
+      servicePackages,
+      propertyServices,
+      propertyServiceItems,
     ] = await Promise.all([
       prisma.user.count({
         where: {
@@ -90,6 +93,31 @@ describe('seed data contract', () => {
           },
         },
       }),
+      prisma.servicePackage.count(),
+      prisma.propertyService.count({
+        where: {
+          property: {
+            user: {
+              email: {
+                in: sampleCustomerEmails,
+              },
+            },
+          },
+        },
+      }),
+      prisma.propertyServiceItem.count({
+        where: {
+          propertyService: {
+            property: {
+              user: {
+                email: {
+                  in: sampleCustomerEmails,
+                },
+              },
+            },
+          },
+        },
+      }),
     ]);
 
     expect({
@@ -100,6 +128,9 @@ describe('seed data contract', () => {
       serviceAreas,
       collectionSchedules,
       serviceVisits,
+      servicePackages,
+      propertyServices,
+      propertyServiceItems,
     }).toEqual({
       users: 2,
       properties: 3,
@@ -108,6 +139,9 @@ describe('seed data contract', () => {
       serviceAreas: 1,
       collectionSchedules: 4,
       serviceVisits: 7,
+      servicePackages: 5,
+      propertyServices: 3,
+      propertyServiceItems: 7,
     });
   });
 
@@ -227,6 +261,89 @@ describe('seed data contract', () => {
     });
 
     expect(binTypes.map((bin) => bin.type).sort()).toEqual(expectedBinTypes);
+  });
+
+  it('seeds package-backed property services', async () => {
+    const services = await prisma.propertyService.findMany({
+      orderBy: [
+        {
+          property: {
+            label: 'asc',
+          },
+        },
+      ],
+      select: {
+        frequency: true,
+        items: {
+          orderBy: [
+            {
+              type: 'asc',
+            },
+            {
+              binType: 'asc',
+            },
+          ],
+          select: {
+            binType: true,
+            quantity: true,
+            type: true,
+          },
+        },
+        package: {
+          select: {
+            name: true,
+          },
+        },
+        property: {
+          select: {
+            label: true,
+          },
+        },
+        status: true,
+      },
+      where: {
+        property: {
+          user: {
+            email: {
+              in: sampleCustomerEmails,
+            },
+          },
+        },
+      },
+    });
+
+    expect(services).toEqual([
+      expect.objectContaining({
+        frequency: 'MONTHLY',
+        package: {
+          name: 'Clean Bin Visit',
+        },
+        property: {
+          label: 'Airbnb',
+        },
+        status: 'PENDING',
+      }),
+      expect.objectContaining({
+        frequency: 'WEEKLY',
+        package: {
+          name: 'Regular Run',
+        },
+        property: {
+          label: 'Home',
+        },
+        status: 'ACTIVE',
+      }),
+      expect.objectContaining({
+        frequency: 'WEEKLY',
+        package: {
+          name: 'Regular Run + Wash',
+        },
+        property: {
+          label: 'Rental',
+        },
+        status: 'ACTIVE',
+      }),
+    ]);
   });
 
   it('models red and blue recycling bins as one service item per property', async () => {

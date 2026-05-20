@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { requestServiceSignup } from './actions';
 import styles from '../auth.module.css';
+import { signupServicePackages } from '@/lib/service-packages';
 
 type ServiceSignupFormProps = {
   error?: string;
@@ -10,7 +11,7 @@ type ServiceSignupFormProps = {
 export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
   const errorMessages: Record<string, string> = {
     'account-unavailable': 'We could not create an account with those details.',
-    incomplete: 'Add your contact details, password, service address, and at least one bin type.',
+    incomplete: 'Add your contact details, password, service address, and a service package.',
     'too-many-attempts': 'Too many signup attempts. Wait a few minutes, then try again.',
   };
   const errorMessage = error ? errorMessages[error] : undefined;
@@ -24,8 +25,8 @@ export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
         <p className={styles.eyebrow}>Start service</p>
         <h1 id="signup-heading">Set up your bin run</h1>
         <p>
-          Tell us where to collect from, which bins need moving, and create the account you will use
-          to manage the service.
+          Tell us where to collect from, choose the service package that fits, and create the
+          account you will use to manage the service.
         </p>
         <dl className={styles.steps}>
           <div>
@@ -34,13 +35,27 @@ export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
           </div>
           <div>
             <dt>2</dt>
-            <dd>Choose the bins you need handled</dd>
+            <dd>Choose a package</dd>
           </div>
           <div>
             <dt>3</dt>
             <dd>Create your password and continue to your dashboard</dd>
           </div>
         </dl>
+        <div className={styles.assistedSignup}>
+          <h2>Prefer not to sign up online?</h2>
+          <p>
+            Email <a href="mailto:admin@binrun.co.nz">admin@binrun.co.nz</a> and we can help set
+            everything up with you. Phone setup can be arranged from there.
+          </p>
+        </div>
+        <div className={styles.assistedSignup}>
+          <h2>Multiple properties or a rental block?</h2>
+          <p>
+            We can tailor a package for landlords, blocks of flats, body corporates, and customers
+            with several service addresses.
+          </p>
+        </div>
       </section>
 
       <section className={styles.signupPanel} aria-label="Service signup form">
@@ -121,24 +136,22 @@ export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
             </div>
           </div>
 
-          <fieldset className={styles.binOptions}>
-            <legend>Bins to move</legend>
-            <label>
-              <input defaultChecked name="binTypes" type="checkbox" value="RECYCLING_BINS" />
-              Recycling bins
-            </label>
-            <label>
-              <input name="binTypes" type="checkbox" value="RUBBISH_BAGS" />
-              Prepaid rubbish bags
-            </label>
-            <label>
-              <input name="binTypes" type="checkbox" value="RUBBISH_WHEELIE" />
-              Rubbish wheelie bin
-            </label>
-            <label>
-              <input name="binTypes" type="checkbox" value="GREEN_WASTE_WHEELIE" />
-              Green waste wheelie bin
-            </label>
+          <fieldset className={styles.packageOptions}>
+            <legend>Service package</legend>
+            {signupServicePackages.map((servicePackage, index) => (
+              <label key={servicePackage.code}>
+                <input
+                  defaultChecked={index === 0}
+                  name="servicePackageCode"
+                  type="radio"
+                  value={servicePackage.code}
+                />
+                <span>
+                  <strong>{servicePackage.name}</strong>
+                  <small>{servicePackage.summary}</small>
+                </span>
+              </label>
+            ))}
           </fieldset>
 
           <div className={styles.field}>
@@ -146,7 +159,7 @@ export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
             <textarea
               id="signup-notes"
               name="collectionNotes"
-              placeholder="Gate code, bin location, driveway notes"
+              placeholder="Gate code, bin location, driveway notes, extra bins, or accessibility needs"
               rows={4}
             />
           </div>
