@@ -285,7 +285,6 @@ enum CollectionFrequency {
 enum ServicePackageCode {
   REGULAR_RUN
   REGULAR_RUN_PLUS_WASH
-  CLEAN_BIN_VISIT
   ONE_OFF_CLEAN
   CUSTOM
 }

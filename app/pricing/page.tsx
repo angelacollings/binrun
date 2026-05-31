@@ -4,7 +4,6 @@ import styles from '../page.module.css';
 import { publicServicePackages } from '@/lib/service-packages';
 
 const packagePrices: Record<string, string> = {
-  CLEAN_BIN_VISIT: 'From $15',
   ONE_OFF_CLEAN: 'Quote',
   REGULAR_RUN: 'From $25',
   REGULAR_RUN_PLUS_WASH: 'From $35',

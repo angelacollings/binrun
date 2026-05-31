@@ -75,22 +75,6 @@ export const servicePackageDefinitions = [
     summary: 'Weekly set-out and return with scheduled bin washing included.',
   },
   {
-    billingMode: 'SUBSCRIPTION',
-    code: 'CLEAN_BIN_VISIT',
-    description:
-      'Recurring cleaning visit for customers who only need bin washing, not weekly set-out and return.',
-    items: [
-      {
-        binType: 'RUBBISH_WHEELIE',
-        quantity: 1,
-        type: 'BIN_CLEANING',
-      },
-    ],
-    name: 'Clean Bin Visit',
-    sortOrder: 30,
-    summary: 'Recurring cleaning only, without weekly bin movement.',
-  },
-  {
     billingMode: 'ONE_OFF',
     code: 'ONE_OFF_CLEAN',
     description:
@@ -103,7 +87,7 @@ export const servicePackageDefinitions = [
       },
     ],
     name: 'One-Off Clean',
-    sortOrder: 40,
+    sortOrder: 30,
     summary: 'One cleaning visit without an ongoing subscription.',
   },
   {
@@ -113,7 +97,7 @@ export const servicePackageDefinitions = [
       'Tailored service for multiple properties, rental blocks, body corporates, or larger service needs.',
     items: [],
     name: 'Custom Package',
-    sortOrder: 50,
+    sortOrder: 40,
     summary: 'Tailored pricing for multiple properties or larger service needs.',
   },
 ] satisfies ServicePackageDefinition[];

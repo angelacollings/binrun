@@ -39,22 +39,13 @@ const servicePackageDefinitions = [
     sortOrder: 20,
   },
   {
-    billingMode: 'SUBSCRIPTION',
-    code: 'CLEAN_BIN_VISIT',
-    description:
-      'Recurring cleaning visit for customers who only need bin washing, not weekly set-out and return.',
-    items: [{ binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_CLEANING' }],
-    name: 'Clean Bin Visit',
-    sortOrder: 30,
-  },
-  {
     billingMode: 'ONE_OFF',
     code: 'ONE_OFF_CLEAN',
     description:
       'A single cleaning visit for a bin that needs a reset without starting a weekly subscription.',
     items: [{ binType: 'RUBBISH_WHEELIE', quantity: 1, type: 'BIN_CLEANING' }],
     name: 'One-Off Clean',
-    sortOrder: 40,
+    sortOrder: 30,
   },
   {
     billingMode: 'CUSTOM',
@@ -63,7 +54,7 @@ const servicePackageDefinitions = [
       'Tailored service for multiple properties, rental blocks, body corporates, or larger service needs.',
     items: [],
     name: 'Custom Package',
-    sortOrder: 50,
+    sortOrder: 40,
   },
 ];
 
@@ -200,9 +191,9 @@ async function main() {
 
     const regularRun = servicePackageByCode('REGULAR_RUN');
     const regularRunPlusWash = servicePackageByCode('REGULAR_RUN_PLUS_WASH');
-    const cleanBinVisit = servicePackageByCode('CLEAN_BIN_VISIT');
+    const oneOffClean = servicePackageByCode('ONE_OFF_CLEAN');
 
-    if (!regularRun || !regularRunPlusWash || !cleanBinVisit) {
+    if (!regularRun || !regularRunPlusWash || !oneOffClean) {
       throw new Error('Missing local service package definitions.');
     }
 
@@ -357,9 +348,9 @@ async function main() {
             },
             services: {
               create: {
-                frequency: 'MONTHLY',
+                frequency: 'ON_DEMAND',
                 items: {
-                  create: cleanBinVisit.items.map((item) => ({
+                  create: oneOffClean.items.map((item) => ({
                     binType: item.binType ?? null,
                     quantity: item.quantity,
                     type: item.type,
@@ -367,7 +358,7 @@ async function main() {
                 },
                 package: {
                   connect: {
-                    code: cleanBinVisit.code,
+                    code: oneOffClean.code,
                   },
                 },
                 serviceDay: 'MONDAY',

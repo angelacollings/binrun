@@ -314,9 +314,9 @@ describe('seed data contract', () => {
 
     expect(services).toEqual([
       expect.objectContaining({
-        frequency: 'MONTHLY',
+        frequency: 'ON_DEMAND',
         package: {
-          name: 'Clean Bin Visit',
+          name: 'One-Off Clean',
         },
         property: {
           label: 'Airbnb',

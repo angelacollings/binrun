@@ -112,7 +112,6 @@ describe('environment validation', () => {
     expect(() =>
       getStripeEnv({
         NODE_ENV: 'production',
-        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_live_clean_bin_visit',
         STRIPE_PRICE_ONE_OFF_CLEAN: 'price_live_one_off_clean',
         STRIPE_PRICE_REGULAR_RUN: 'price_live_regular_run',
         STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_live_regular_run_plus_wash',
@@ -127,7 +126,6 @@ describe('environment validation', () => {
   it('reads Stripe package price IDs', () => {
     expect(
       getStripeEnv({
-        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_123_clean',
         STRIPE_PRICE_ONE_OFF_CLEAN: 'price_123_once',
         STRIPE_PRICE_REGULAR_RUN: 'price_123_regular',
         STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_123_wash',
@@ -135,7 +133,6 @@ describe('environment validation', () => {
         STRIPE_WEBHOOK_SECRET: 'whsec_123',
       })
     ).toEqual({
-      cleanBinVisitPriceId: 'price_123_clean',
       oneOffCleanPriceId: 'price_123_once',
       regularRunPlusWashPriceId: 'price_123_wash',
       regularRunPriceId: 'price_123_regular',

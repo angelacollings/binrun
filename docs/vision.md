@@ -13,7 +13,6 @@ The public product language is package-led:
 
 - Regular Run: weekly set-out and return for one service address.
 - Regular Run + Wash: weekly set-out and return with scheduled bin cleaning.
-- Clean Bin Visit: recurring cleaning without weekly bin movement.
 - One-Off Clean: a single cleaning visit without a subscription.
 - Custom Package: tailored service for multiple properties, blocks of flats,
   body corporates, landlords, or larger sites.

@@ -22,7 +22,6 @@ export type AuthEnv = {
 };
 
 export type StripeEnv = {
-  cleanBinVisitPriceId: string;
   oneOffCleanPriceId: string;
   regularRunPriceId: string;
   regularRunPlusWashPriceId: string;

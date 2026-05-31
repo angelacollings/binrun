@@ -19,7 +19,6 @@ BinRun packages the service around the job customers want done:
 
 - Regular Run
 - Regular Run + Wash
-- Clean Bin Visit
 - One-Off Clean
 - Custom Package for multiple properties, rental blocks, body corporates, and larger sites
 
