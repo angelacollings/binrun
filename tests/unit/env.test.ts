@@ -112,10 +112,10 @@ describe('environment validation', () => {
     expect(() =>
       getStripeEnv({
         NODE_ENV: 'production',
-        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_placeholder_clean_bin_visit',
-        STRIPE_PRICE_ONE_OFF_CLEAN: 'price_placeholder_one_off_clean',
-        STRIPE_PRICE_REGULAR_RUN: 'price_placeholder_regular_run',
-        STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_placeholder_regular_run_plus_wash',
+        STRIPE_PRICE_CLEAN_BIN_VISIT: 'price_live_clean_bin_visit',
+        STRIPE_PRICE_ONE_OFF_CLEAN: 'price_live_one_off_clean',
+        STRIPE_PRICE_REGULAR_RUN: 'price_live_regular_run',
+        STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: 'price_live_regular_run_plus_wash',
         STRIPE_SECRET_KEY: 'sk_test_placeholder',
         STRIPE_WEBHOOK_SECRET: 'whsec_placeholder',
       })
