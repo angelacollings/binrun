@@ -139,7 +139,7 @@ describe('seed data contract', () => {
       serviceAreas: 1,
       collectionSchedules: 4,
       serviceVisits: 7,
-      servicePackages: 5,
+      servicePackages: 4,
       propertyServices: 3,
       propertyServiceItems: 7,
     });
