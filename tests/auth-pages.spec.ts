@@ -21,8 +21,19 @@ test('renders customer service signup and account creation form', async ({ page 
   );
   await expect(page.getByLabel('Confirm password')).toHaveAttribute('autocomplete', 'new-password');
   await expect(page.getByLabel('Service address')).toBeVisible();
-  await expect(page.getByRole('group', { name: 'Bins to move' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Service package' })).toBeVisible();
+  await expect(page.getByText('Regular Run', { exact: true })).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Create account and start service' })
   ).toBeVisible();
+});
+
+test('renders pricing page with service packages and assisted setup', async ({ page }) => {
+  await page.goto('/pricing');
+
+  await expect(page.getByRole('heading', { name: 'Simple packages' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Regular Run' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Regular Run + Wash' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Need help signing up?' })).toBeVisible();
+  await expect(page.getByText('admin@binrun.co.nz')).toBeVisible();
 });

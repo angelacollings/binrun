@@ -1,4 +1,23 @@
+import type { ServiceVisitStatus } from '@prisma/client';
+
 import { prisma } from '@/lib/prisma';
+
+const allowedTransitions: Record<ServiceVisitStatus, ServiceVisitStatus[]> = {
+  BLOCKED: ['IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED', 'CANCELED'],
+  CANCELED: [],
+  COMPLETED: [],
+  FAILED: [],
+  IN_PROGRESS: ['COMPLETED', 'BLOCKED', 'SKIPPED', 'FAILED', 'MISSED', 'CANCELED'],
+  MISSED: ['IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED', 'CANCELED'],
+  PLANNED: ['IN_PROGRESS', 'COMPLETED', 'BLOCKED', 'SKIPPED', 'FAILED', 'MISSED', 'CANCELED'],
+  SKIPPED: [],
+};
+
+export class InvalidServiceVisitTransitionError extends Error {
+  constructor(currentStatus: ServiceVisitStatus, nextStatus: ServiceVisitStatus) {
+    super(`Cannot move service visit from ${currentStatus} to ${nextStatus}.`);
+  }
+}
 
 export async function listServiceRunBoard() {
   return prisma.serviceVisit.findMany({
@@ -23,6 +42,7 @@ export async function listServiceRunBoard() {
       },
       completedAt: true,
       id: true,
+      lastUpdatedById: true,
       notes: true,
       property: {
         select: {
@@ -43,6 +63,7 @@ export async function listServiceRunBoard() {
       },
       scheduledFor: true,
       status: true,
+      statusNote: true,
       updatedAt: true,
     },
     take: 25,
@@ -53,6 +74,45 @@ export async function listServiceRunBoard() {
       scheduledFor: {
         gte: new Date(Date.now() - 1000 * 60 * 60 * 24),
       },
+    },
+  });
+}
+
+export async function updateServiceVisitStatus(
+  actorUserId: string,
+  visitId: string,
+  nextStatus: ServiceVisitStatus,
+  statusNote: string | null
+) {
+  const visit = await prisma.serviceVisit.findFirst({
+    select: {
+      status: true,
+    },
+    where: {
+      id: visitId,
+      property: {
+        active: true,
+      },
+    },
+  });
+
+  if (!visit) {
+    return null;
+  }
+
+  if (visit.status !== nextStatus && !allowedTransitions[visit.status].includes(nextStatus)) {
+    throw new InvalidServiceVisitTransitionError(visit.status, nextStatus);
+  }
+
+  return prisma.serviceVisit.update({
+    data: {
+      completedAt: nextStatus === 'COMPLETED' ? new Date() : null,
+      lastUpdatedById: actorUserId,
+      status: nextStatus,
+      statusNote,
+    },
+    where: {
+      id: visitId,
     },
   });
 }

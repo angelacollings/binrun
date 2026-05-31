@@ -1,4 +1,5 @@
 import { requireCustomer } from '@/lib/auth/roles';
+import { getCustomerDashboardSummary } from '@/lib/dashboard/service';
 import { listUserProperties } from '@/lib/properties/service';
 
 import { Shell } from '../(app)/Shell';
@@ -25,6 +26,29 @@ function textValue(value: string | null | undefined) {
   return value ?? '';
 }
 
+function formatPackageStatus(value: string) {
+  return value.charAt(0) + value.slice(1).toLowerCase();
+}
+
+function formatServiceTiming(service: { frequency: string; serviceDay: string | null }) {
+  const cadence = service.frequency.toLowerCase().replace('_', ' ');
+  const day = service.serviceDay ? ` on ${service.serviceDay.toLowerCase()}` : '';
+
+  return `${cadence}${day}`;
+}
+
+function formatDateTime(value: Date | null | undefined) {
+  if (!value) {
+    return 'Not scheduled';
+  }
+
+  return new Intl.DateTimeFormat('en-NZ', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Pacific/Auckland',
+  }).format(value);
+}
+
 function propertyMessage(value: string | undefined) {
   return value ? propertyMessages[value] : undefined;
 }
@@ -49,9 +73,12 @@ function fieldError(
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const session = await requireCustomer();
-  const [{ properties: propertyStatus, propertyField, propertyId }, properties] = await Promise.all(
-    [searchParams, listUserProperties(session.user.id)]
-  );
+  const [{ properties: propertyStatus, propertyField, propertyId }, properties, dashboardSummary] =
+    await Promise.all([
+      searchParams,
+      listUserProperties(session.user.id),
+      getCustomerDashboardSummary(session.user.id),
+    ]);
   const message = propertyMessage(propertyStatus);
 
   return (
@@ -60,6 +87,27 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <p className={styles.eyebrow}>Customer dashboard</p>
         <h1>Welcome{session.user.name ? `, ${session.user.name}` : ''}</h1>
         <p>Manage the service addresses BinRun should know about.</p>
+      </section>
+
+      <section className={styles.metricGrid} aria-label="Dashboard summary">
+        <div>
+          <span>{dashboardSummary?.totals.properties ?? 0}</span>
+          <p>Properties</p>
+        </div>
+        <div>
+          <span>{dashboardSummary?.totals.activeServices ?? 0}</span>
+          <p>Active services</p>
+        </div>
+        <div>
+          <span>{dashboardSummary?.totals.bins ?? 0}</span>
+          <p>Known bins</p>
+        </div>
+        <div>
+          <span className={styles.metricValueText}>
+            {formatDateTime(dashboardSummary?.nextServiceVisit?.scheduledFor)}
+          </span>
+          <p>Next service</p>
+        </div>
       </section>
 
       {message ? (
@@ -93,6 +141,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     {property.collectionNotes ? (
                       <p className={styles.mutedText}>{property.collectionNotes}</p>
                     ) : null}
+                    {property.services.length > 0 ? (
+                      <div className={styles.serviceSummaryList}>
+                        {property.services.map((service) => (
+                          <div className={styles.serviceSummary} key={service.id}>
+                            <span>{service.package.name}</span>
+                            <strong>{formatPackageStatus(service.status)}</strong>
+                            <p>{formatServiceTiming(service)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className={styles.mutedText}>
+                        No package selected yet. Email admin@binrun.co.nz if you want help choosing.
+                      </p>
+                    )}
                   </div>
 
                   <form className={styles.propertyForm} action={updateProperty}>

@@ -2,13 +2,14 @@
 
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { BinType, UserRole } from '@prisma/client';
+import type { BinType, ServicePackageCode, UserRole } from '@prisma/client';
 
 import { auth } from '@/auth';
 import { hashPassword, loginSchema, signupSchema } from '@/lib/auth/password';
 import { prisma } from '@/lib/prisma';
 import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
 import { checkAuthRateLimit } from '@/lib/auth/throttle';
+import { servicePackageByCode, servicePackageCodes } from '@/lib/service-packages';
 
 function redirectWithLoginError(error: string, callbackUrl: string): never {
   const params = new URLSearchParams({
@@ -49,18 +50,23 @@ async function enforceAuthThrottle(action: 'login' | 'signup', email: string) {
   }
 }
 
-function selectedBinTypes(formData: FormData): BinType[] {
-  const allowed = new Set<BinType>([
-    'RECYCLING_BINS',
-    'RUBBISH_BAGS',
-    'RUBBISH_WHEELIE',
-    'GREEN_WASTE_WHEELIE',
-  ]);
+function selectedServicePackageCode(formData: FormData): ServicePackageCode | null {
+  const value = String(formData.get('servicePackageCode') ?? '');
 
-  return formData
-    .getAll('binTypes')
-    .map((value) => String(value))
-    .filter((value): value is BinType => allowed.has(value as BinType));
+  return servicePackageCodes.includes(value as ServicePackageCode)
+    ? (value as ServicePackageCode)
+    : null;
+}
+
+function labelForBinType(type: BinType) {
+  const labels: Record<BinType, string> = {
+    GREEN_WASTE_WHEELIE: 'Green waste wheelie bin',
+    RECYCLING_BINS: 'Red and blue recycling bins',
+    RUBBISH_BAGS: 'Council prepaid rubbish bags',
+    RUBBISH_WHEELIE: 'Rubbish wheelie bin',
+  };
+
+  return labels[type];
 }
 
 async function signInWithPassword(
@@ -138,15 +144,34 @@ export async function requestServiceSignup(formData: FormData) {
     postcode: formValue(formData, 'postcode'),
     suburb: formValue(formData, 'suburb'),
   });
-  const binTypes = selectedBinTypes(formData);
+  const selectedPackageCode = selectedServicePackageCode(formData);
+  const selectedPackage = selectedPackageCode ? servicePackageByCode(selectedPackageCode) : null;
 
-  if (!parsedSignup.success || binTypes.length === 0) {
+  if (!parsedSignup.success || !selectedPackage) {
     redirect('/register?error=incomplete');
   }
 
   const { addressLine1, collectionNotes, email, name, password, postcode, suburb } =
     parsedSignup.data;
   const passwordHash = await hashPassword(password);
+  const packageItems = selectedPackage.items;
+  const binRecords = Array.from(
+    packageItems
+      .filter((item) => item.binType)
+      .reduce<Map<BinType, number>>((itemsByType, item) => {
+        const binType = item.binType;
+
+        if (!binType) {
+          return itemsByType;
+        }
+
+        return itemsByType.set(binType, Math.max(itemsByType.get(binType) ?? 0, item.quantity));
+      }, new Map())
+  ).map(([type, quantity]) => ({
+    label: labelForBinType(type),
+    maxQuantity: quantity > 1 || type === 'RUBBISH_BAGS' ? quantity : null,
+    type,
+  }));
 
   const existingUser = await prisma.user.findUnique({
     select: {
@@ -172,6 +197,27 @@ export async function requestServiceSignup(formData: FormData) {
   });
 
   try {
+    const servicePackage = await prisma.servicePackage.upsert({
+      create: {
+        active: true,
+        billingMode: selectedPackage.billingMode,
+        code: selectedPackage.code,
+        description: selectedPackage.description,
+        name: selectedPackage.name,
+        sortOrder: selectedPackage.sortOrder,
+      },
+      update: {
+        active: true,
+        billingMode: selectedPackage.billingMode,
+        description: selectedPackage.description,
+        name: selectedPackage.name,
+        sortOrder: selectedPackage.sortOrder,
+      },
+      where: {
+        code: selectedPackage.code,
+      },
+    });
+
     await prisma.user.create({
       data: {
         email,
@@ -194,10 +240,25 @@ export async function requestServiceSignup(formData: FormData) {
             serviceAreaId: serviceArea?.id,
             suburb,
             bins: {
-              create: binTypes.map((type) => ({
-                maxQuantity: type === 'RUBBISH_BAGS' ? 3 : null,
-                type,
-              })),
+              create: binRecords,
+            },
+            services: {
+              create: {
+                customNotes:
+                  selectedPackage.code === 'CUSTOM'
+                    ? 'Customer requested a tailored package at signup.'
+                    : null,
+                frequency: selectedPackage.billingMode === 'ONE_OFF' ? 'ON_DEMAND' : 'WEEKLY',
+                items: {
+                  create: packageItems.map((item) => ({
+                    binType: item.binType ?? null,
+                    quantity: item.quantity,
+                    type: item.type,
+                  })),
+                },
+                packageId: servicePackage.id,
+                status: 'PENDING',
+              },
             },
           },
         },

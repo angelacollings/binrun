@@ -52,6 +52,22 @@ const propertySelect = {
       name: true,
     },
   },
+  services: {
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      frequency: true,
+      id: true,
+      package: {
+        select: {
+          name: true,
+        },
+      },
+      serviceDay: true,
+      status: true,
+    },
+  },
   suburb: true,
   updatedAt: true,
 } as const;

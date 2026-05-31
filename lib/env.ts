@@ -22,6 +22,9 @@ export type AuthEnv = {
 };
 
 export type StripeEnv = {
+  oneOffCleanPriceId: string;
+  regularRunPriceId: string;
+  regularRunPlusWashPriceId: string;
   stripeSecretKey: string;
   stripeWebhookSecret: string;
 };

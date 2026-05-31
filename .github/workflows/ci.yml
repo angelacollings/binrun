@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint, build, and test
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: binrun
+          MYSQL_PASSWORD: binrun-local
+          MYSQL_ROOT_PASSWORD: root-local
+          MYSQL_USER: binrun
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ubinrun -pbinrun-local"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      BETTER_AUTH_SECRET: ci-auth-secret-with-enough-length-for-tests
+      BETTER_AUTH_URL: http://localhost:3000
+      DATABASE_URL: mysql://binrun:binrun-local@127.0.0.1:3306/binrun
+      EMAIL_FROM: admin@binrun.co.nz
+      NODE_ENV: test
+      SMTP_HOST: smtp.example.com
+      SMTP_PASSWORD: local-password
+      SMTP_PORT: 587
+      SMTP_USER: local-user
+      STRIPE_PRICE_CLEAN_BIN_VISIT: price_ci_clean_bin_visit
+      STRIPE_PRICE_ONE_OFF_CLEAN: price_ci_one_off_clean
+      STRIPE_PRICE_REGULAR_RUN: price_ci_regular_run
+      STRIPE_PRICE_REGULAR_RUN_PLUS_WASH: price_ci_regular_run_plus_wash
+      STRIPE_SECRET_KEY: sk_test_ci
+      STRIPE_WEBHOOK_SECRET: whsec_ci
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply migrations
+        run: npm run db:deploy
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Seed database
+        run: npm run db:seed
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build
