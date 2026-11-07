@@ -15,6 +15,7 @@ type DashboardPageProps = {
 };
 
 const propertyMessages: Record<string, string> = {
+  'active-service': 'Cancel the active service or subscription before removing this property.',
   created: 'Property added.',
   deactivated: 'Property removed from active service.',
   invalid: 'Check the property details and try again.',
@@ -111,7 +112,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </section>
 
       {message ? (
-        <p className={propertyStatus === 'invalid' ? styles.errorNotice : styles.successNotice}>
+        <p
+          className={
+            propertyStatus === 'invalid' || propertyStatus === 'active-service'
+              ? styles.errorNotice
+              : styles.successNotice
+          }
+        >
           {message}
         </p>
       ) : null}

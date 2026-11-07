@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import {
+  ActivePropertyServiceError,
   createPropertySchema,
   createUserProperty,
   deactivateUserProperty,
@@ -138,10 +139,35 @@ describe('properties API service contract', () => {
   });
 
   it('deactivates owned properties without deleting dependent rows', async () => {
+    const servicePackage = await prisma.servicePackage.findFirstOrThrow({
+      select: {
+        id: true,
+      },
+    });
     const bin = await prisma.bin.create({
       data: {
         propertyId: primaryPropertyId,
         type: 'RECYCLING_BINS',
+      },
+      select: {
+        id: true,
+      },
+    });
+    const pendingService = await prisma.propertyService.create({
+      data: {
+        packageId: servicePackage.id,
+        propertyId: primaryPropertyId,
+        status: 'PENDING',
+      },
+      select: {
+        id: true,
+      },
+    });
+    const pendingSubscription = await prisma.subscription.create({
+      data: {
+        propertyServiceId: pendingService.id,
+        status: 'PENDING',
+        userId: primaryUserId,
       },
       select: {
         id: true,
@@ -164,6 +190,75 @@ describe('properties API service contract', () => {
 
     expect(preservedBin).toEqual({
       propertyId: primaryPropertyId,
+    });
+
+    await expect(
+      prisma.propertyService.findUnique({
+        select: {
+          canceledAt: true,
+          status: true,
+        },
+        where: {
+          id: pendingService.id,
+        },
+      })
+    ).resolves.toMatchObject({
+      canceledAt: expect.any(Date),
+      status: 'CANCELED',
+    });
+
+    await expect(
+      prisma.subscription.findUnique({
+        select: {
+          canceledAt: true,
+          status: true,
+        },
+        where: {
+          id: pendingSubscription.id,
+        },
+      })
+    ).resolves.toMatchObject({
+      canceledAt: expect.any(Date),
+      status: 'CANCELED',
+    });
+  });
+
+  it('blocks deactivation while a property has an active service', async () => {
+    const property = await createUserProperty(primaryUserId, {
+      addressLine1: '40 Active Service Road',
+      city: 'Whangarei',
+      label: 'Active service property',
+      suburb: 'Kamo',
+    });
+    const servicePackage = await prisma.servicePackage.findFirstOrThrow({
+      select: {
+        id: true,
+      },
+    });
+
+    await prisma.propertyService.create({
+      data: {
+        packageId: servicePackage.id,
+        propertyId: property.id,
+        status: 'ACTIVE',
+      },
+    });
+
+    await expect(deactivateUserProperty(primaryUserId, property.id)).rejects.toBeInstanceOf(
+      ActivePropertyServiceError
+    );
+
+    await expect(
+      prisma.property.findUnique({
+        select: {
+          active: true,
+        },
+        where: {
+          id: property.id,
+        },
+      })
+    ).resolves.toEqual({
+      active: true,
     });
   });
 });
