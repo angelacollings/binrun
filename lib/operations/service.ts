@@ -1,6 +1,6 @@
 import type { ServiceVisitStatus } from '@prisma/client';
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../prisma';
 
 const allowedTransitions: Record<ServiceVisitStatus, ServiceVisitStatus[]> = {
   BLOCKED: ['IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED', 'CANCELED'],
@@ -16,6 +16,12 @@ const allowedTransitions: Record<ServiceVisitStatus, ServiceVisitStatus[]> = {
 export class InvalidServiceVisitTransitionError extends Error {
   constructor(currentStatus: ServiceVisitStatus, nextStatus: ServiceVisitStatus) {
     super(`Cannot move service visit from ${currentStatus} to ${nextStatus}.`);
+  }
+}
+
+export class ServiceVisitConflictError extends Error {
+  constructor() {
+    super('Service visit changed before this update was applied.');
   }
 }
 
@@ -104,13 +110,24 @@ export async function updateServiceVisitStatus(
     throw new InvalidServiceVisitTransitionError(visit.status, nextStatus);
   }
 
-  return prisma.serviceVisit.update({
+  const updateResult = await prisma.serviceVisit.updateMany({
     data: {
       completedAt: nextStatus === 'COMPLETED' ? new Date() : null,
       lastUpdatedById: actorUserId,
       status: nextStatus,
       statusNote,
     },
+    where: {
+      id: visitId,
+      status: visit.status,
+    },
+  });
+
+  if (updateResult.count === 0) {
+    throw new ServiceVisitConflictError();
+  }
+
+  return prisma.serviceVisit.findUniqueOrThrow({
     where: {
       id: visitId,
     },
