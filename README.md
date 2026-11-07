@@ -2,232 +2,249 @@
 
 **Bin day? Sorted.**
 
-BinRun is a package-based service for regular bin set-out, return, and optional bin cleaning.
+BinRun is an in-development full-stack application for a subscription-based wheelie bin management service in Whangarei, New Zealand. It is designed to help households, landlords, and property managers arrange regular bin set-out and return, with optional bin cleaning.
 
-Designed for:
+BinRun manages the service around council collection; it is not a waste collection provider.
 
-- Busy households
-- Elderly or disabled individuals
-- Rental property owners
-- Airbnb hosts
+## Project status
 
----
+BinRun is an active portfolio and product-development project. The repository demonstrates the core customer, operational, and data-management workflows, but it is not yet a complete production subscription platform.
 
-## What We Do
+### Implemented
 
-BinRun packages the service around the job customers want done:
+- Email and password registration and sign-in
+- Argon2 password hashing and database-backed sessions through Better Auth
+- Customer, worker, and administrator roles with protected routes
+- Package selection during customer signup
+- Customer property creation, editing, and soft deactivation
+- Ownership-protected property and bin APIs
+- Customer dashboard summaries for properties, services, bins, subscriptions, and upcoming visits
+- Worker and administrator run boards with controlled service-visit status transitions
+- Service packages, properties, bins, collection schedules, subscriptions, and visits in the Prisma data model
+- Local MySQL development with committed migrations and guarded sample seed data
+- Unit and database-backed integration tests
+- GitHub Actions checks for linting, type safety, tests, migrations, seeding, and production builds
+- Standalone Next.js deployment configuration
 
-- Regular Run
-- Regular Run + Wash
-- One-Off Clean
-- Custom Package for multiple properties, rental blocks, body corporates, and larger sites
+### Partially implemented
 
-BinRun handles the **movement and optional cleaning of bins**, not the waste collection itself.
+- **Subscriptions:** the schema and dashboard status views exist, but checkout, billing management, and provider synchronization do not.
+- **Bin management:** the API and data model exist, but customers do not yet have a bin-management screen.
+- **Collection scheduling:** service areas, schedules, and visits are modelled and displayed, but production visit generation is not automated.
+- **Administration:** workers and administrators can update service visits, but broader customer, package, and schedule administration is still planned.
+- **Accessibility:** semantic forms and basic smoke coverage are present; automated accessibility checks and a documented manual review are outstanding.
 
----
+### Planned
 
-## Core Features (MVP)
+- Stripe checkout, webhooks, billing portal, and subscription lifecycle management
+- Password recovery and email verification
+- Email notifications
+- Customer-facing bin and package management
+- Automated generation of service visits from collection schedules
+- Expanded administration and operational reporting
 
-- User accounts
-- Subscription management
-- Address/property management
-- Package selection
-- Assisted signup path for customers who prefer email or phone help
-- Collection day tracking
-- Secure online billing
+## Service packages
 
----
+The current product model supports:
 
-## Tech Stack
+- **Regular Run** — weekly bin set-out and return
+- **Regular Run + Wash** — regular service with scheduled bin cleaning
+- **One-Off Clean** — a single cleaning visit without a subscription
+- **Custom Package** — tailored service for multiple properties, rental blocks, body corporates, or larger sites
 
-- Next.js 16 with TypeScript (frontend + backend)
+Package selection currently creates a pending property service. It does not take payment.
+
+## Architecture
+
+BinRun uses the Next.js App Router as a full-stack application:
+
+```text
+Next.js pages and forms
+├── Server Actions
+├── Route Handlers
+└── Better Auth routes
+        │
+Domain services and Zod validation
+├── Authentication and role checks
+├── Properties and bins
+├── Customer dashboard
+└── Service operations
+        │
+Prisma Client with MariaDB adapter
+        │
+MySQL 8.4
+```
+
+The main application boundaries are:
+
+- `app/` — App Router pages, server actions, API routes, and styles
+- `lib/` — authentication, validation, domain services, environment handling, and Prisma access
+- `prisma/` — schema, migrations, and guarded local seed data
+- `tests/` — Vitest unit/integration tests and Playwright browser smoke tests
+- `docs/` — architecture, security, accessibility, deployment, and product documentation
+
+`PropertyService` represents the package purchased for a property. `Bin` separately represents the physical bin inventory used by operational visits. This keeps the commercial service definition separate from day-to-day service execution.
+
+## Technology stack
+
+- Next.js 16 and React 19
+- TypeScript 5 with strict mode
 - Node.js 24
 - MySQL 8.4
-- Stripe (payments)
+- Prisma 7 with the MariaDB driver adapter
+- Better Auth and Argon2
+- Zod validation
+- Vitest and Playwright
+- ESLint and Prettier
+- Docker Compose for local MySQL
+- GitHub Actions for continuous integration
 
-**Note**: Docker configuration is development-only. Production uses SiteHost's managed MySQL container.
+Stripe and SMTP configuration are represented in the environment layer for planned payment and notification work; those integrations are not currently active application features.
 
----
+## Security and authorization
 
-## Prerequisites
+Current safeguards include:
 
-- Node.js v24 or later
-- npm v9 or later
-- MySQL 8.4 for local container development (optional, see Development section)
+- Server-side session and role checks for customer, worker, and administrator routes
+- Resource-ownership checks for customer property and bin operations
+- Argon2 password hashing
+- Short-lived database-backed sessions
+- Better Auth rate limiting plus a supplemental per-process login/signup throttle
+- Server-side Zod validation
+- Production environment validation and rejection of placeholder secrets
+- Rejection of secret-like `NEXT_PUBLIC_` environment variable names
+- Security response headers
+- Seed protection that refuses production and non-local database targets
 
-## Production Deployment
+The in-memory supplemental throttle is an MVP control for a single application process, not a distributed rate limiter. See [`docs/security.md`](./docs/security.md) for the current security checklist and known follow-up work.
 
-This application is designed for deployment on SiteHost Cloud Containers:
+## Local development
 
-- **Node.js**: v24 (managed by the SiteHost Nginx + NodeJS24 container)
-- **MySQL**: v8.4 (provisioned through SiteHost control panel)
-- **No Docker required** - SiteHost handles containerization
+### Prerequisites
 
-## Local Development
+- Node.js 24.x
+- npm 11 or a version compatible with the committed lockfile
+- Docker with Docker Compose
 
-1. **Clone the repository**
+### Setup
+
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/angelacollings/binrun.git
    cd binrun
    ```
 
-2. **Install dependencies**
+2. Install the locked dependencies:
 
    ```bash
-   npm install
+   npm ci
    ```
 
-3. **Run the development server**
+3. Create a local environment file:
 
    ```bash
-   npm run dev
+   cp .env.example .env
    ```
 
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Set `DATABASE_URL` in `.env` for the MySQL service in `docker-compose.yml`:
 
-4. **Build for production**
-
-   ```bash
-   npm run build
-   npm run start
+   ```text
+   DATABASE_URL=mysql://binrun:binrun-local@127.0.0.1:3306/binrun
    ```
 
----
+   The remaining values in `.env.example` are safe placeholders. Local authentication can use the development defaults in `lib/env.mjs`; production requires explicit Better Auth configuration.
 
-## Code Quality
-
-- **Lint**: `npm run lint`
-- **Format**: `npm run format`
-- **Check formatting**: `npm run format:check`
-
----
-
-## Project Status
-
-🚧 In development
-
----
-
-## Vision
-
-Our goal is to make bin day hassle-free for everyone in Whangarei. We plan to expand to other regions.
-
----
-
-## App Setup Guide
-
-### Prerequisites
-
-- Node.js 24.x
-- npm 9.x or higher
-- MySQL 8.4
-
----
-
-### Local Setup
-
-1. Clone the repository
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Configure environment variables by copying `.env.example` to `.env`
-4. Start local development (database + app):
+5. Start MySQL, apply committed migrations, generate Prisma Client, and start Next.js:
 
    ```bash
    npm run dev:local
    ```
 
-### Environment Variables
+6. Open [http://localhost:3000](http://localhost:3000).
 
-- Store secrets in `.env`
-- Keep `.env.example` with placeholder values only
-- Server-only config is validated in `lib/env.ts`
-- Do not expose secrets with `NEXT_PUBLIC_`; those values are bundled into browser JavaScript
+### Optional sample data
 
-Prisma 7 reads the database connection from `prisma.config.ts`, not from `prisma/schema.prisma`.
-
-Current load order in `prisma.config.ts`:
-
-1. Existing environment variables already provided by the shell or hosting platform
-2. `.env`
-
-In production, the recommended setup is to configure environment variables in the hosting platform instead of deploying `.env`.
-
-Current validation behavior:
-
-- `DATABASE_URL` is required before Prisma connects.
-- Better Auth, Stripe, and email settings are validated when their subsystem reads them.
-- Production rejects placeholder secret values.
-- Build/startup rejects secret-like `NEXT_PUBLIC_` variable names.
-
-Current requirement groups:
-
-- Required now: `DATABASE_URL`
-- Required when auth lands: `BETTER_AUTH_SECRET`
-- Required for deployed auth behind SiteHost: `BETTER_AUTH_URL`
-- Required when payments land: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and Stripe
-  package price IDs
-- Required when notifications land: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
-
-The env implementation has a JavaScript core (`lib/env.mjs`) plus typed TypeScript
-wrapper (`lib/env.ts`) so direct Node scripts like `prisma/seed.mjs` can share the
-same validation without adding a script transpilation step.
-
----
-
-### Available Scripts
-
-- `npm run dev` — Start development server only (localhost:3000)
-- `npm run dev:local` — Start local MySQL, apply migrations, generate Prisma client, and run app
-- `npm run build` — Generate Prisma Client and build for production
-- `npm run start` — Start production server
-- `npm run deploy:prepare` — Apply committed migrations, generate Prisma Client, and build for deployment
-- `npm run lint` — Run ESLint checks
-- `npm run db:up` — Start local MySQL container
-- `npm run db:down` — Stop local MySQL container
-- `npm run db:reset` — Recreate local MySQL volume from scratch
-- `npm run db:migrate` — Create/apply development migrations
-- `npm run db:deploy` — Apply committed migrations
-- `npm run db:generate` — Generate Prisma client
-- `npm run test:unit` — Run fast unit tests
-- `npm run test:integration` — Run database-backed integration tests
-
-### Local Database Reset And Seed
-
-Use this flow when you need a clean local database with sample customers,
-properties, bins, and subscriptions:
+The seed creates fictional customers, properties, service packages, visits, and staff roles for local development. It deletes and recreates its known sample users, so only run it against a disposable local database.
 
 ```bash
-npm run db:reset
-npm run db:deploy
-npm run db:generate
 npm run db:seed
-npm run test:integration
 ```
 
-The seed script is for local/test data only. It refuses to run in production and
-refuses non-local database hosts by default.
+The seed script refuses to run when `NODE_ENV=production` or when `DATABASE_URL` targets a non-local host.
 
----
+## Environment variables
 
-### Project Structure
+Real credentials belong in an ignored `.env` file for local development or in the deployment platform's secret configuration. Never commit real values or expose server secrets with `NEXT_PUBLIC_`.
 
-```
-app/      # Next.js app router pages, layouts, and styles
-docs/     # Product notes, architecture diagrams, and mockups
-prisma/   # Prisma schema and future migrations
-public/   # Static assets served by the app
-docker-compose.yml  # Local MySQL service for development
-```
+| Variable                                               | Current use                           | Required        |
+| ------------------------------------------------------ | ------------------------------------- | --------------- |
+| `DATABASE_URL`                                         | Prisma/MySQL connection               | Yes             |
+| `BETTER_AUTH_SECRET`                                   | Session and authentication signing    | Production auth |
+| `BETTER_AUTH_URL`                                      | Canonical Better Auth application URL | Production auth |
+| `STRIPE_SECRET_KEY`                                    | Planned Stripe server client          | Not yet         |
+| `STRIPE_WEBHOOK_SECRET`                                | Planned webhook verification          | Not yet         |
+| `STRIPE_PRICE_*`                                       | Planned package-to-price mapping      | Not yet         |
+| `EMAIL_FROM`                                           | Planned notification sender           | Not yet         |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Planned SMTP delivery                 | Not yet         |
 
----
+Prisma 7 reads the database URL through `prisma.config.ts`. Environment validation is shared between TypeScript application code and direct Node scripts through `lib/env.mjs` and its typed `lib/env.ts` wrapper.
 
-### Notes
+## Available commands
 
-- This project uses Next.js with server-side rendering
-- Local DB + app startup is automated via `npm run dev:local`
-- Review the docs in `node_modules/next/dist/docs/` for API changes and deprecation notices
+| Command                             | Purpose                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`                       | Start Next.js using an already configured database environment                  |
+| `npm run dev:local`                 | Start local MySQL, deploy migrations, generate Prisma Client, and start Next.js |
+| `npm run build`                     | Generate Prisma Client and create a production build                            |
+| `npm start`                         | Start the standalone production server after a build                            |
+| `npm run lint`                      | Run ESLint                                                                      |
+| `npm run format:check`              | Check Prettier formatting                                                       |
+| `npx tsc --noEmit`                  | Run TypeScript type checking                                                    |
+| `npm run test:unit`                 | Run unit tests                                                                  |
+| `npm run test:integration`          | Run database-backed integration tests                                           |
+| `npm run test:e2e`                  | Run Playwright browser tests                                                    |
+| `npm run db:up` / `npm run db:down` | Start or stop local MySQL                                                       |
+| `npm run db:deploy`                 | Apply committed migrations                                                      |
+| `npm run db:seed`                   | Load guarded fictional local data                                               |
+
+Integration tests and seed commands read and write the configured database. Use a dedicated local/test database, never a production database.
+
+## Testing and continuous integration
+
+The test suite currently covers:
+
+- Environment validation
+- Role and callback-route helpers
+- Authentication throttling
+- Property validation, ownership, updates, and soft deactivation
+- Bin validation, ownership, uniqueness, updates, and removal
+- Seed-data structure and Better Auth sign-in
+- Public login, registration, pricing, and homepage browser smoke tests
+
+GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, TypeScript, unit tests, integration tests, and a production build. Playwright is available locally but is not yet part of CI.
+
+## Documentation
+
+- [Documentation index](./docs/README.md)
+- [Project vision](./docs/vision.md)
+- [Data model](./docs/diagrams/data-model.md)
+- [Security baseline](./docs/security.md)
+- [Accessibility and UX baseline](./docs/accessibility.md)
+- [Deployment runbook](./docs/deployment/sitehost.md)
+
+## Roadmap
+
+The next portfolio-focused priorities are:
+
+1. Keep documentation synchronized with the implemented routes and workflows.
+2. Define how property deactivation interacts with active services and future billing.
+3. Add integration coverage for signup, service creation, and visit transitions.
+4. Add representative screenshots using fictional seed data.
+5. Add a small Playwright smoke job to CI.
+
+Payment, notification, and broader product workflows will follow as product development continues; they are not required to understand or run the current application.
+
+## License
+
+This project is licensed under the terms in [`LICENSE`](./LICENSE).
