@@ -32,7 +32,7 @@ test('renders pricing page with service packages and assisted setup', async ({ p
   await page.goto('/pricing');
 
   await expect(page.getByRole('heading', { name: 'Simple packages' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Regular Run' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Regular Run', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Regular Run + Wash' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Need help signing up?' })).toBeVisible();
   await expect(page.getByText('admin@binrun.co.nz')).toBeVisible();

@@ -10,6 +10,27 @@ BinRun manages the service around council collection; it is not a waste collecti
 
 BinRun is an active portfolio and product-development project. The repository demonstrates the core customer, operational, and data-management workflows, but it is not yet a complete production subscription platform.
 
+## Application preview
+
+The screenshots below use fictional local seed data.
+
+<img src="./docs/screenshots/landing-page.png" alt="BinRun landing page showing its service proposition, packages, and signup calls to action" width="900">
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/customer-dashboard.png" alt="BinRun customer dashboard showing service summaries and property management">
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/admin-run-board.png" alt="BinRun administrator run board showing scheduled service visits and status controls">
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Customer property dashboard</strong></td>
+    <td align="center"><strong>Administrator service run board</strong></td>
+  </tr>
+</table>
+
 ### Implemented
 
 - Email and password registration and sign-in
@@ -222,7 +243,7 @@ The test suite currently covers:
 - Seed-data structure and Better Auth sign-in
 - Public login, registration, pricing, and homepage browser smoke tests
 
-GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, TypeScript, unit tests, integration tests, and a production build. Playwright is available locally but is not yet part of CI.
+GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
 
 ## Documentation
 
@@ -241,7 +262,7 @@ The next portfolio-focused priorities are:
 2. Define how property deactivation interacts with active services and future billing.
 3. Add integration coverage for signup, service creation, and visit transitions.
 4. Add representative screenshots using fictional seed data.
-5. Add a small Playwright smoke job to CI.
+5. Expand authenticated browser coverage for the customer and operations workflows.
 
 Payment, notification, and broader product workflows will follow as product development continues; they are not required to understand or run the current application.
 
