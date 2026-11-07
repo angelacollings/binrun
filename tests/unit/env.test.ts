@@ -5,6 +5,7 @@ import {
   getAuthEnv,
   getDatabaseEnv,
   getEmailEnv,
+  getMariaDbConfig,
   getStripeEnv,
 } from '../../lib/env';
 
@@ -31,6 +32,34 @@ describe('environment validation', () => {
         DATABASE_URL: 'not-a-url',
       })
     ).toThrow('Environment variable DATABASE_URL must be a valid URL.');
+  });
+
+  it('builds MariaDB adapter config from an encoded database URL', () => {
+    expect(
+      getMariaDbConfig({
+        DATABASE_URL: 'mysql://binrun:encoded%40password@127.0.0.1:3307/binrun_test',
+      })
+    ).toEqual({
+      database: 'binrun_test',
+      host: '127.0.0.1',
+      password: 'encoded@password',
+      port: 3307,
+      user: 'binrun',
+    });
+  });
+
+  it('requires a MySQL-compatible protocol and database name', () => {
+    expect(() =>
+      getMariaDbConfig({
+        DATABASE_URL: 'postgresql://user:password@localhost/binrun',
+      })
+    ).toThrow('Environment variable DATABASE_URL must use the mysql or mariadb protocol.');
+
+    expect(() =>
+      getMariaDbConfig({
+        DATABASE_URL: 'mysql://user:password@localhost',
+      })
+    ).toThrow('Environment variable DATABASE_URL must include a database name.');
   });
 
   it('uses secure cookie defaults for production auth config', () => {

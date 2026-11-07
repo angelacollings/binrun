@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { requireCustomer } from '@/lib/auth/roles';
 import {
+  ActivePropertyServiceError,
   createPropertySchema,
   createUserProperty,
   deactivateUserProperty,
@@ -97,7 +98,17 @@ export async function deactivateProperty(formData: FormData) {
     redirect(`/dashboard?properties=invalid&propertyId=${propertyId}&propertyField=confirmRemove`);
   }
 
-  const deactivated = await deactivateUserProperty(session.user.id, propertyId);
+  let deactivated: boolean;
+
+  try {
+    deactivated = await deactivateUserProperty(session.user.id, propertyId);
+  } catch (error) {
+    if (error instanceof ActivePropertyServiceError) {
+      redirect('/dashboard?properties=active-service');
+    }
+
+    throw error;
+  }
 
   if (!deactivated) {
     redirect('/dashboard?properties=not-found');

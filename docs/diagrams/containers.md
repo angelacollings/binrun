@@ -2,12 +2,11 @@
 
 ```mermaid
 graph TD
-User -->|HTTPS| App[Next.js App NodeJS24 Container]
+    User[Customer or staff] -->|HTTPS| App[Next.js App NodeJS24 Container]
 
     App --> DB[(MySQL Database)]
-    App --> StripeAPI[Stripe API]
-
     App --> Logs[SiteHost Logging]
+    App -. planned .-> StripeAPI[Stripe API]
 
     subgraph SiteHost
         App

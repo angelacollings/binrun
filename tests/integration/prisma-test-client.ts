@@ -3,13 +3,11 @@ import 'dotenv/config';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 
-import { getDatabaseEnv } from '../../lib/env';
+import { getMariaDbConfig } from '../../lib/env';
 
 export function createPrismaTestClient() {
-  const { databaseUrl } = getDatabaseEnv();
-
   return new PrismaClient({
-    adapter: new PrismaMariaDb(databaseUrl),
+    adapter: new PrismaMariaDb(getMariaDbConfig()),
     log: ['warn', 'error'],
   });
 }

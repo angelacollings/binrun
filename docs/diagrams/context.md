@@ -1,15 +1,17 @@
 # System Context Diagram
 
-This shows how BinRun interacts with external systems.
+This shows BinRun's current production context and its planned payment integration.
 
 ```mermaid
 graph TD
-    User[User]
+    Customer[Customer]
+    Staff[Worker or administrator]
     BinRun[BinRun System]
-    Stripe[Stripe]
+    Stripe[Stripe - planned]
     SiteHost[SiteHost Containers]
 
-    User --> BinRun
-    BinRun --> Stripe
+    Customer -->|HTTPS| BinRun
+    Staff -->|HTTPS| BinRun
     BinRun --> SiteHost
+    BinRun -. planned checkout and webhooks .-> Stripe
 ```

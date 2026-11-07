@@ -75,6 +75,12 @@ const propertySelect = {
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;
 
+export class ActivePropertyServiceError extends Error {
+  constructor() {
+    super('Property has an active service or subscription.');
+  }
+}
+
 async function activeServiceAreaForCity(city: string) {
   return prisma.serviceArea.findFirst({
     orderBy: {
@@ -155,17 +161,89 @@ export async function updateUserProperty(
 }
 
 export async function deactivateUserProperty(userId: string, propertyId: string) {
-  const updateResult = await prisma.property.updateMany({
-    data: {
-      active: false,
-      deactivatedAt: new Date(),
-    },
-    where: {
-      active: true,
-      id: propertyId,
-      userId,
-    },
-  });
+  return prisma.$transaction(async (transaction) => {
+    const property = await transaction.property.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        active: true,
+        id: propertyId,
+        userId,
+      },
+    });
 
-  return updateResult.count > 0;
+    if (!property) {
+      return false;
+    }
+
+    const blockingService = await transaction.propertyService.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        OR: [
+          {
+            status: {
+              in: ['ACTIVE', 'PAUSED'],
+            },
+          },
+          {
+            subscriptions: {
+              some: {
+                status: {
+                  in: ['ACTIVE', 'PAST_DUE', 'INCOMPLETE'],
+                },
+              },
+            },
+          },
+        ],
+        propertyId,
+      },
+    });
+
+    if (blockingService) {
+      throw new ActivePropertyServiceError();
+    }
+
+    const canceledAt = new Date();
+
+    await transaction.subscription.updateMany({
+      data: {
+        canceledAt,
+        status: 'CANCELED',
+      },
+      where: {
+        propertyService: {
+          propertyId,
+        },
+        status: 'PENDING',
+      },
+    });
+
+    await transaction.propertyService.updateMany({
+      data: {
+        canceledAt,
+        status: 'CANCELED',
+      },
+      where: {
+        propertyId,
+        status: 'PENDING',
+      },
+    });
+
+    const updateResult = await transaction.property.updateMany({
+      data: {
+        active: false,
+        deactivatedAt: canceledAt,
+      },
+      where: {
+        active: true,
+        id: propertyId,
+        userId,
+      },
+    });
+
+    return updateResult.count > 0;
+  });
 }
