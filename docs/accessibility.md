@@ -9,7 +9,7 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 - [x] The default Next.js route announcer can use the document title or page heading.
 - [x] ESLint is enabled for React and Next.js rules.
 - [x] E2E smoke coverage checks the launch-page heading, key copy, service signup, and shared login.
-- [ ] Automated accessibility checks are wired into Playwright.
+- [x] Axe WCAG A/AA checks cover representative public, customer, and worker pages in Playwright.
 - [ ] Manual keyboard and screen reader checks are documented per core flow.
 
 ## Page Checklist
@@ -58,7 +58,7 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 ## Pre-Launch Review
 
 - [ ] Run Playwright smoke tests.
-- [ ] Run automated accessibility tests once configured.
+- [x] Run automated accessibility tests with `npm run test:a11y`.
 - [ ] Complete each MVP form with keyboard only.
 - [ ] Check light and dark mode contrast.
 - [ ] Check mobile viewport layout for every core page.
