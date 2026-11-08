@@ -10,7 +10,8 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 - [x] ESLint is enabled for React and Next.js rules.
 - [x] E2E smoke coverage checks the launch-page heading, key copy, service signup, and shared login.
 - [x] Axe WCAG A/AA checks cover representative public, customer, and worker pages in Playwright.
-- [ ] Manual keyboard and screen reader checks are documented per core flow.
+- [x] Initial keyboard, focus, mobile, and reflow checks are documented.
+- [ ] Screen-reader and complete keyboard checks are documented per core flow.
 
 ## Page Checklist
 
