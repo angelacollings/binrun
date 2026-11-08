@@ -286,6 +286,11 @@
   background: #174f42;
 }
 
+.buttonPrimary:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .buttonDanger {
   border: 1px solid #d4a59f;
   background: #fff7f5;
@@ -504,6 +509,11 @@
 
 .runStatusForm select {
   padding: 0 10px;
+}
+
+.runStatusMessage {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .runStatusForm input:focus,

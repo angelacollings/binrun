@@ -31,8 +31,12 @@ test('worker signs in, sees the run board, and cannot access admin routes', asyn
 
   await expect(page).toHaveURL(/\/worker$/);
   await expect(page.getByRole('heading', { name: 'Service route access' })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Service run board' })).toBeVisible();
+  const runBoard = page.getByRole('region', { name: 'Service run board' });
+  await expect(runBoard).toBeVisible();
   await expect(page.getByText('Upcoming visits')).toBeVisible();
+
+  await runBoard.getByRole('button', { name: 'Update visit' }).first().click();
+  await expect(runBoard.getByRole('status')).toHaveText('Visit updated.');
 
   await page.goto('/admin');
 

@@ -1,6 +1,7 @@
 import type { ServiceVisitStatus } from '@prisma/client';
 
-import { updateRunBoardVisit } from './run-board-actions';
+import { RunBoardVisitForm } from './RunBoardVisitForm';
+import { serviceVisitStatusLabels } from './run-board-status';
 import styles from '../app.module.css';
 
 type RunBoardVisit = {
@@ -34,17 +35,6 @@ type RunBoardVisit = {
 
 type RunBoardProps = {
   visits: RunBoardVisit[];
-};
-
-const statusLabels: Record<ServiceVisitStatus, string> = {
-  BLOCKED: 'Blocked',
-  CANCELED: 'Canceled',
-  COMPLETED: 'Completed',
-  FAILED: 'Failed',
-  IN_PROGRESS: 'In progress',
-  MISSED: 'Missed',
-  PLANNED: 'Planned',
-  SKIPPED: 'Skipped',
 };
 
 const binLabels: Record<string, string> = {
@@ -117,7 +107,7 @@ export function RunBoard({ visits }: RunBoardProps) {
               <div className={styles.runSchedule}>
                 <strong>{formatDateTime(visit.scheduledFor)}</strong>
                 <span className={styles[`status${visit.status}`]}>
-                  {statusLabels[visit.status]}
+                  {serviceVisitStatusLabels[visit.status]}
                 </span>
               </div>
 
@@ -139,31 +129,11 @@ export function RunBoard({ visits }: RunBoardProps) {
                 ) : null}
                 {visit.notes ? <p className={styles.runNote}>{visit.notes}</p> : null}
                 {visit.statusNote ? <p className={styles.runNote}>{visit.statusNote}</p> : null}
-                <form className={styles.runStatusForm} action={updateRunBoardVisit}>
-                  <input name="visitId" type="hidden" value={visit.id} />
-                  <label>
-                    <span>Status</span>
-                    <select defaultValue={visit.status} name="status">
-                      {Object.entries(statusLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    <span>Note</span>
-                    <input
-                      defaultValue={visit.statusNote ?? ''}
-                      maxLength={500}
-                      name="statusNote"
-                      placeholder="Access issue, completion note, or exception"
-                    />
-                  </label>
-                  <button className={styles.buttonPrimary} type="submit">
-                    Update visit
-                  </button>
-                </form>
+                <RunBoardVisitForm
+                  status={visit.status}
+                  statusNote={visit.statusNote}
+                  visitId={visit.id}
+                />
               </div>
             </article>
           ))}

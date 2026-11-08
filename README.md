@@ -264,7 +264,7 @@ The authenticated Playwright tests use the fictional accounts created by `npm ru
 The next portfolio-focused priorities are:
 
 1. Add automated accessibility checks and record a structured manual accessibility review.
-2. Add browser coverage for safe customer and worker mutations.
+2. Add browser coverage for safe customer property mutations.
 3. Add integration coverage for service creation and authenticated API route behavior.
 4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
 
