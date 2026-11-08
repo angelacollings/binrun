@@ -221,7 +221,7 @@ Prisma 7 reads the database URL through `prisma.config.ts`. Environment validati
 | `npm start`                         | Start the standalone production server after a build                            |
 | `npm run lint`                      | Run ESLint                                                                      |
 | `npm run format:check`              | Check Prettier formatting                                                       |
-| `npx tsc --noEmit`                  | Run TypeScript type checking                                                    |
+| `npm run typecheck`                 | Run TypeScript type checking                                                    |
 | `npm run test:unit`                 | Run unit tests                                                                  |
 | `npm run test:integration`          | Run database-backed integration tests                                           |
 | `npm run test:e2e`                  | Run Playwright browser tests                                                    |
@@ -240,10 +240,12 @@ The test suite currently covers:
 - Authentication throttling
 - Property validation, ownership, updates, and soft deactivation
 - Bin validation, ownership, uniqueness, updates, and removal
+- Dashboard ownership, active-record filtering, visit ordering, and safe subscription output
 - Seed-data structure and Better Auth sign-in
+- Service-visit authorization, allowed transitions, audit fields, and completion timestamps
 - Public login, registration, pricing, and homepage browser smoke tests
 
-GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
+GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, formatting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
 
 ## Documentation
 
@@ -258,11 +260,10 @@ GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client
 
 The next portfolio-focused priorities are:
 
-1. Keep documentation synchronized with the implemented routes and workflows.
-2. Define how property deactivation interacts with active services and future billing.
-3. Add integration coverage for signup, service creation, and visit transitions.
-4. Add representative screenshots using fictional seed data.
-5. Expand authenticated browser coverage for the customer and operations workflows.
+1. Expand authenticated browser coverage for customer and operations workflows.
+2. Add automated accessibility checks and record a structured manual accessibility review.
+3. Add integration coverage for service creation and authenticated API route behavior.
+4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
 
 Payment, notification, and broader product workflows will follow as product development continues; they are not required to understand or run the current application.
 

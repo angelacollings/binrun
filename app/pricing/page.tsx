@@ -49,13 +49,7 @@ export default function PricingPage() {
 
         <section className={styles.helpGrid} aria-label="Pricing help">
           <article>
-            <Image
-              alt=""
-              aria-hidden="true"
-              height={64}
-              src="/brand/icon-support.svg"
-              width={64}
-            />
+            <Image alt="" aria-hidden="true" height={64} src="/brand/icon-support.svg" width={64} />
             <h2>Need help signing up?</h2>
             <p>
               Email <a href="mailto:admin@binrun.co.nz">admin@binrun.co.nz</a> and we can help
@@ -63,13 +57,7 @@ export default function PricingPage() {
             </p>
           </article>
           <article>
-            <Image
-              alt=""
-              aria-hidden="true"
-              height={64}
-              src="/brand/icon-secure.svg"
-              width={64}
-            />
+            <Image alt="" aria-hidden="true" height={64} src="/brand/icon-secure.svg" width={64} />
             <h2>Multiple properties</h2>
             <p>
               We can quote a catered package for landlords, blocks of flats, body corporates, or
