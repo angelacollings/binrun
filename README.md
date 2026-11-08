@@ -244,8 +244,11 @@ The test suite currently covers:
 - Seed-data structure and Better Auth sign-in
 - Service-visit authorization, allowed transitions, audit fields, and completion timestamps
 - Public login, registration, pricing, and homepage browser smoke tests
+- Authenticated customer and worker screens with role-based route denial
 
 GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, formatting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
+
+The authenticated Playwright tests use the fictional accounts created by `npm run db:seed`. Seed a disposable local database before running those tests outside CI.
 
 ## Documentation
 
@@ -260,8 +263,8 @@ GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client
 
 The next portfolio-focused priorities are:
 
-1. Expand authenticated browser coverage for customer and operations workflows.
-2. Add automated accessibility checks and record a structured manual accessibility review.
+1. Add automated accessibility checks and record a structured manual accessibility review.
+2. Add browser coverage for safe customer and worker mutations.
 3. Add integration coverage for service creation and authenticated API route behavior.
 4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
 
