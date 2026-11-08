@@ -225,6 +225,7 @@ Prisma 7 reads the database URL through `prisma.config.ts`. Environment validati
 | `npm run test:unit`                 | Run unit tests                                                                  |
 | `npm run test:integration`          | Run database-backed integration tests                                           |
 | `npm run test:e2e`                  | Run Playwright browser tests                                                    |
+| `npm run test:a11y`                 | Run Axe checks against representative public and authenticated pages            |
 | `npm run db:up` / `npm run db:down` | Start or stop local MySQL                                                       |
 | `npm run db:deploy`                 | Apply committed migrations                                                      |
 | `npm run db:seed`                   | Load guarded fictional local data                                               |
@@ -245,6 +246,7 @@ The test suite currently covers:
 - Service-visit authorization, allowed transitions, audit fields, and completion timestamps
 - Public login, registration, pricing, and homepage browser smoke tests
 - Authenticated customer and worker screens with role-based route denial
+- Automated WCAG A/AA checks for representative public, customer, and worker pages
 
 GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, formatting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
 
@@ -263,7 +265,7 @@ The authenticated Playwright tests use the fictional accounts created by `npm ru
 
 The next portfolio-focused priorities are:
 
-1. Add automated accessibility checks and record a structured manual accessibility review.
+1. Record a structured manual keyboard, zoom, contrast, and screen-reader review.
 2. Add browser coverage for safe customer property mutations.
 3. Add integration coverage for service creation and authenticated API route behavior.
 4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
