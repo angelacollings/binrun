@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { requireWorker } from '@/lib/auth/roles';
 import {
   InvalidServiceVisitTransitionError,
+  ServiceVisitConflictError,
   updateServiceVisitStatus,
 } from '@/lib/operations/service';
 
@@ -55,7 +56,10 @@ export async function updateRunBoardVisit(formData: FormData) {
       parsed.data.statusNote ?? null
     );
   } catch (error) {
-    if (!(error instanceof InvalidServiceVisitTransitionError)) {
+    if (
+      !(error instanceof InvalidServiceVisitTransitionError) &&
+      !(error instanceof ServiceVisitConflictError)
+    ) {
       throw error;
     }
   }

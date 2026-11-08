@@ -12,7 +12,8 @@ permissions:
 jobs:
   test:
     name: Lint, build, and test
-    runs-on: ubuntu-latest
+    # Playwright 1.59 supports Ubuntu 24.04; ubuntu-latest now resolves to 26.04.
+    runs-on: ubuntu-24.04
 
     services:
       mysql:
@@ -49,10 +50,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -80,6 +81,12 @@ jobs:
 
       - name: Integration tests
         run: npm run test:integration
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser smoke tests
+        run: npm run test:e2e
 
       - name: Build
         run: npm run build

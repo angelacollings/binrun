@@ -3,6 +3,7 @@ import { ZodError, z } from 'zod';
 
 import { requireCustomer, AuthenticationError, AuthorizationError } from '@/lib/auth/roles';
 import {
+  ActivePropertyServiceError,
   deactivateUserProperty,
   updatePropertySchema,
   updateUserProperty,
@@ -32,6 +33,14 @@ function apiError(code: string, message: string, status: number, issues?: unknow
 }
 
 function handleRouteError(error: unknown) {
+  if (error instanceof ActivePropertyServiceError) {
+    return apiError(
+      'active-service',
+      'Cancel the active service or subscription before removing this property.',
+      409
+    );
+  }
+
   if (error instanceof AuthenticationError) {
     return apiError('unauthorized', 'Authentication required.', 401);
   }

@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { BinType, ServicePackageCode, UserRole } from '@prisma/client';
@@ -154,6 +155,7 @@ export async function requestServiceSignup(formData: FormData) {
   const { addressLine1, collectionNotes, email, name, password, postcode, suburb } =
     parsedSignup.data;
   const passwordHash = await hashPassword(password);
+  const userId = randomUUID();
   const packageItems = selectedPackage.items;
   const binRecords = Array.from(
     packageItems
@@ -221,10 +223,11 @@ export async function requestServiceSignup(formData: FormData) {
     await prisma.user.create({
       data: {
         email,
+        id: userId,
         name,
         accounts: {
           create: {
-            accountId: email,
+            accountId: userId,
             providerId: 'credential',
             password: passwordHash,
           },

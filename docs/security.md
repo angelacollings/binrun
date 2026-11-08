@@ -26,25 +26,26 @@ Update it whenever a feature adds a new route, API, integration, secret, or admi
 | `/api/health/db`   | Public operational check | Generic errors only; no connection details or query output.                                   |
 | `/login`           | Public auth form         | Safe credential errors only; Better Auth sign-in plus per-IP/per-email throttling.            |
 | `/register`        | Public signup form       | Reject duplicate emails safely; create Better Auth credential accounts; throttle attempts.    |
-| Customer dashboard | Not built                | Require authenticated session; query by session user only.                                    |
+| Customer dashboard | Built                    | Requires a customer session; dashboard and property queries use the session user ID.          |
 | Properties API     | Built                    | Validate input server-side; create/read/update/deactivate only records owned by session user. |
 | Bin selection API  | Built                    | Validate bin type and collection day server-side; enforce property ownership.                 |
 | Subscription API   | Not built                | Never trust client price, customer ID, subscription ID, or status.                            |
 | Stripe checkout    | Not built                | Create sessions server-side from known price IDs and session user.                            |
 | Stripe webhook     | Not built                | Verify Stripe signature before parsing business intent; make event handling idempotent.       |
-| Admin dashboard    | Not built                | Require explicit admin role and keep customer/admin authorization paths separate.             |
+| Worker run board   | Built                    | Require worker or admin role; validate visit transitions and record the acting user ID.       |
+| Admin dashboard    | Built                    | Require explicit admin role and keep customer/admin authorization paths separate.             |
 
 ## Feature Checklist
 
 - [x] Authentication is required for every customer/admin route that handles private data.
 - [x] Authorization checks use the authenticated session, not client-provided user IDs.
 - [x] Ownership checks are applied before returning or mutating customer records.
-- [ ] Inputs are validated on the server and rejected with clear, non-sensitive errors.
+- [x] Current form and API inputs are validated on the server and rejected with clear, non-sensitive errors.
 - [ ] Outputs do not expose secrets, raw database errors, stack traces, or internal IDs unnecessarily.
 - [ ] Mutations are protected against duplicate submission where repeated requests could cause harm.
-- [ ] New secrets are documented in `.env.example` with placeholder values only.
-- [ ] Browser-exposed environment variables use `NEXT_PUBLIC_` only when they are intentionally public.
-- [ ] New subsystems read config through `lib/env.ts` instead of direct `process.env` access.
+- [x] Current secret names are documented in `.env.example` with placeholder values only.
+- [x] No current server secrets are exposed through `NEXT_PUBLIC_` variables.
+- [x] Current database, auth, Stripe, and email configuration is read through the shared environment module.
 - [ ] If a script runner such as `tsx` is adopted, consider collapsing `lib/env.mjs` and `lib/env.ts` into one TypeScript source.
 - [ ] Logs are useful for operations but avoid passwords, tokens, full webhook payloads, and personal notes.
 - [ ] Payment and webhook code has explicit tests for signature, idempotency, and invalid-state handling.

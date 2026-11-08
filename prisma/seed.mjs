@@ -1,10 +1,11 @@
 import 'dotenv/config';
 
+import { randomUUID } from 'node:crypto';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'argon2';
 
-import { getDatabaseEnv } from '../lib/env.mjs';
+import { getDatabaseEnv, getMariaDbConfig } from '../lib/env.mjs';
 
 const sampleCustomerEmails = ['angela@example.com', 'sam@example.com'];
 const sampleStaffEmails = ['worker@example.com', 'admin@example.com'];
@@ -94,7 +95,7 @@ function getPrismaClient() {
   assertSafeSeedTarget(databaseEnv);
 
   return new PrismaClient({
-    adapter: new PrismaMariaDb(databaseEnv.databaseUrl),
+    adapter: new PrismaMariaDb(getMariaDbConfig()),
     log: ['warn', 'error'],
   });
 }
@@ -104,6 +105,10 @@ async function main() {
 
   try {
     const samplePasswordHash = await hash(samplePassword);
+    const angelaUserId = randomUUID();
+    const samUserId = randomUUID();
+    const workerUserId = randomUUID();
+    const adminUserId = randomUUID();
 
     await prisma.user.deleteMany({
       where: {
@@ -201,10 +206,11 @@ async function main() {
       data: {
         email: 'angela@example.com',
         emailVerified: true,
+        id: angelaUserId,
         name: 'Angela Collings',
         accounts: {
           create: {
-            accountId: 'angela@example.com',
+            accountId: angelaUserId,
             providerId: 'credential',
             password: samplePasswordHash,
           },
@@ -314,10 +320,11 @@ async function main() {
       data: {
         email: 'sam@example.com',
         emailVerified: true,
+        id: samUserId,
         name: 'Sam Taylor',
         accounts: {
           create: {
-            accountId: 'sam@example.com',
+            accountId: samUserId,
             providerId: 'credential',
             password: samplePasswordHash,
           },
@@ -502,10 +509,11 @@ async function main() {
       data: {
         email: 'worker@example.com',
         emailVerified: true,
+        id: workerUserId,
         name: 'BinRun Worker',
         accounts: {
           create: {
-            accountId: 'worker@example.com',
+            accountId: workerUserId,
             providerId: 'credential',
             password: samplePasswordHash,
           },
@@ -518,10 +526,11 @@ async function main() {
       data: {
         email: 'admin@example.com',
         emailVerified: true,
+        id: adminUserId,
         name: 'BinRun Admin',
         accounts: {
           create: {
-            accountId: 'admin@example.com',
+            accountId: adminUserId,
             providerId: 'credential',
             password: samplePasswordHash,
           },
