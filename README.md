@@ -259,13 +259,14 @@ The authenticated Playwright tests use the fictional accounts created by `npm ru
 - [Data model](./docs/diagrams/data-model.md)
 - [Security baseline](./docs/security.md)
 - [Accessibility and UX baseline](./docs/accessibility.md)
+- [Accessibility review](./docs/accessibility-review.md)
 - [Deployment runbook](./docs/deployment/sitehost.md)
 
 ## Roadmap
 
 The next portfolio-focused priorities are:
 
-1. Record a structured manual keyboard, zoom, contrast, and screen-reader review.
+1. Complete native 200% zoom, screen-reader, and end-to-end keyboard reviews.
 2. Add browser coverage for safe customer property mutations.
 3. Add integration coverage for service creation and authenticated API route behavior.
 4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.

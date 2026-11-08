@@ -31,6 +31,7 @@ Documentation for the BinRun system, including architecture and design.
 
 - [Security Baseline](./security.md)
 - [Accessibility and UX Baseline](./accessibility.md)
+- [Accessibility Review](./accessibility-review.md)
 
 ---
 
