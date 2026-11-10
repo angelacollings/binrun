@@ -6,6 +6,10 @@ This review records the checks completed for the current BinRun portfolio build.
 claim of formal WCAG conformance or a substitute for testing with disabled users and assistive
 technology.
 
+Future reviews should follow the [manual accessibility testing workflow](./manual-accessibility-testing.md)
+and use the [copyable review template](./templates/manual-accessibility-review.md). This file remains
+the historical result of the initial review rather than the reusable procedure.
+
 ## Scope
 
 Representative routes reviewed:
@@ -52,6 +56,9 @@ technology:
 - Touch target review on representative physical mobile devices
 
 BinRun currently has no user-selectable dark theme, so dark-mode conformance was not assessed.
+
+The reusable workflow defines the evidence, severity, route/state coverage, and follow-up issue
+requirements for completing these checks consistently.
 
 ## Repeatable Commands
 
