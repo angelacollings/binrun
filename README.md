@@ -39,7 +39,7 @@ The screenshots below use fictional local seed data.
 - Package selection during customer signup
 - Customer property creation, editing, and soft deactivation
 - Ownership-protected property and bin APIs
-- Customer dashboard summaries for properties, services, bins, subscriptions, and upcoming visits
+- Customer dashboard summaries for properties, services, bins, and upcoming visits
 - Worker and administrator run boards with controlled service-visit status transitions
 - Service packages, properties, bins, collection schedules, subscriptions, and visits in the Prisma data model
 - Local MySQL development with committed migrations and guarded sample seed data
@@ -49,11 +49,11 @@ The screenshots below use fictional local seed data.
 
 ### Partially implemented
 
-- **Subscriptions:** the schema and dashboard status views exist, but checkout, billing management, and provider synchronization do not.
+- **Subscriptions:** the schema and dashboard query support exist, but customer-facing status, checkout, billing management, and provider synchronization do not.
 - **Bin management:** the API and data model exist, but customers do not yet have a bin-management screen.
 - **Collection scheduling:** service areas, schedules, and visits are modelled and displayed, but production visit generation is not automated.
 - **Administration:** workers and administrators can update service visits, but broader customer, package, and schedule administration is still planned.
-- **Accessibility:** semantic forms and basic smoke coverage are present; automated accessibility checks and a documented manual review are outstanding.
+- **Accessibility:** automated WCAG A/AA checks and an initial manual review are documented; complete keyboard, native zoom, and screen-reader reviews remain outstanding.
 
 ### Planned
 
@@ -224,8 +224,8 @@ Prisma 7 reads the database URL through `prisma.config.ts`. Environment validati
 | `npm run typecheck`                 | Run TypeScript type checking                                                    |
 | `npm run test:unit`                 | Run unit tests                                                                  |
 | `npm run test:integration`          | Run database-backed integration tests                                           |
-| `npm run test:e2e`                  | Run Playwright browser tests                                                    |
-| `npm run test:a11y`                 | Run Axe checks against representative public and authenticated pages            |
+| `npm run test:e2e`                  | Refresh guarded local seed data and run Playwright browser tests                |
+| `npm run test:a11y`                 | Refresh guarded local seed data and run Axe checks on representative pages      |
 | `npm run db:up` / `npm run db:down` | Start or stop local MySQL                                                       |
 | `npm run db:deploy`                 | Apply committed migrations                                                      |
 | `npm run db:seed`                   | Load guarded fictional local data                                               |
@@ -250,7 +250,7 @@ The test suite currently covers:
 
 GitHub Actions provisions MySQL 8.4, applies migrations, generates Prisma Client, seeds test data, and runs linting, formatting, TypeScript, unit tests, database-backed integration tests, Playwright browser smoke tests, and a production build.
 
-The authenticated Playwright tests use the fictional accounts created by `npm run db:seed`. Seed a disposable local database before running those tests outside CI.
+The authenticated Playwright commands refresh the fictional accounts and time-relative visits through the guarded seed script before running. Use these commands only with the disposable local/test database described above.
 
 ## Documentation
 

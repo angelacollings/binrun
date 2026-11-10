@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import type { ServiceVisitStatus } from '@prisma/client';
 
 import { updateRunBoardVisit, type RunBoardActionState } from './run-board-actions';
-import { serviceVisitStatusLabels } from './run-board-status';
+import { availableServiceVisitStatuses, serviceVisitStatusLabels } from './run-board-status';
 import styles from '../app.module.css';
 
 type RunBoardVisitFormProps = {
@@ -20,16 +20,18 @@ const initialState: RunBoardActionState = {
 
 export function RunBoardVisitForm({ status, statusNote, visitId }: RunBoardVisitFormProps) {
   const [state, formAction, pending] = useActionState(updateRunBoardVisit, initialState);
+  const availableStatuses = availableServiceVisitStatuses(status);
+  const isTerminal = availableStatuses.length === 1;
 
   return (
     <form className={styles.runStatusForm} action={formAction}>
       <input name="visitId" type="hidden" value={visitId} />
       <label>
         <span>Status</span>
-        <select defaultValue={status} disabled={pending} name="status">
-          {Object.entries(serviceVisitStatusLabels).map(([value, label]) => (
+        <select defaultValue={status} disabled={pending || isTerminal} name="status">
+          {availableStatuses.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {serviceVisitStatusLabels[value]}
             </option>
           ))}
         </select>
@@ -38,15 +40,19 @@ export function RunBoardVisitForm({ status, statusNote, visitId }: RunBoardVisit
         <span>Note</span>
         <input
           defaultValue={statusNote ?? ''}
-          disabled={pending}
+          disabled={pending || isTerminal}
           maxLength={500}
           name="statusNote"
           placeholder="Access issue, completion note, or exception"
         />
       </label>
-      <button className={styles.buttonPrimary} disabled={pending} type="submit">
-        {pending ? 'Updating…' : 'Update visit'}
-      </button>
+      {isTerminal ? (
+        <p className={styles.runStatusComplete}>This visit is closed and cannot be updated.</p>
+      ) : (
+        <button className={styles.buttonPrimary} disabled={pending} type="submit">
+          {pending ? 'Updating…' : 'Update visit'}
+        </button>
+      )}
       {state.message ? (
         <p
           aria-live="polite"

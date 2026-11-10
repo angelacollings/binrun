@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 test('renders shared login page with email and password fields', async ({ page }) => {
   await page.goto('/login');
 
+  await expect(page).toHaveTitle('Sign in | BinRun');
   await expect(page.getByRole('heading', { name: 'Sign in to BinRun' })).toBeVisible();
   await expect(page.getByLabel('Email address')).toHaveAttribute('type', 'email');
   await expect(page.getByLabel('Password')).toHaveAttribute('autocomplete', 'current-password');
@@ -12,6 +13,7 @@ test('renders shared login page with email and password fields', async ({ page }
 test('renders customer service signup and account creation form', async ({ page }) => {
   await page.goto('/register');
 
+  await expect(page).toHaveTitle('Start service | BinRun');
   await expect(page.getByRole('heading', { name: 'Set up your bin run' })).toBeVisible();
   await expect(page.getByLabel('Full name')).toBeVisible();
   await expect(page.getByLabel('Email address')).toHaveAttribute('autocomplete', 'email');
@@ -31,6 +33,7 @@ test('renders customer service signup and account creation form', async ({ page 
 test('renders pricing page with service packages and assisted setup', async ({ page }) => {
   await page.goto('/pricing');
 
+  await expect(page).toHaveTitle('Pricing | BinRun');
   await expect(page.getByRole('heading', { name: 'Simple packages' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Regular Run', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Regular Run + Wash' })).toBeVisible();

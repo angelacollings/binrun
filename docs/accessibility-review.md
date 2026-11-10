@@ -60,4 +60,5 @@ npm run test:a11y
 npm run test:e2e
 ```
 
-Run authenticated checks only against a disposable database populated with `npm run db:seed`.
+These commands refresh the fictional accounts and time-relative visits automatically. Run them
+only against the disposable local/test database described in the project README.

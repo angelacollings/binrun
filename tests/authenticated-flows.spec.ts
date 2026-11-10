@@ -15,6 +15,7 @@ test('customer signs in, sees owned dashboard data, and cannot access admin rout
   await signIn(page, 'angela@example.com');
 
   await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveTitle('Customer dashboard | BinRun');
   await expect(page.getByRole('heading', { name: 'Welcome, Angela Collings' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Dashboard summary' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Active properties' })).toBeVisible();
@@ -30,6 +31,7 @@ test('worker signs in, sees the run board, and cannot access admin routes', asyn
   await signIn(page, 'worker@example.com');
 
   await expect(page).toHaveURL(/\/worker$/);
+  await expect(page).toHaveTitle('Worker run board | BinRun');
   await expect(page.getByRole('heading', { name: 'Service route access' })).toBeVisible();
   const runBoard = page.getByRole('region', { name: 'Service run board' });
   await expect(runBoard).toBeVisible();
