@@ -11,6 +11,7 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 - [x] E2E smoke coverage checks the launch-page heading, key copy, service signup, and shared login.
 - [x] Axe WCAG A/AA checks cover representative public, customer, and worker pages in Playwright.
 - [x] Initial keyboard, focus, mobile, and reflow checks are documented.
+- [x] A repeatable manual review workflow and results template are documented.
 - [ ] Screen-reader and complete keyboard checks are documented per core flow.
 
 ## Page Checklist

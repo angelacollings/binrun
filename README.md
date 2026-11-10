@@ -260,6 +260,7 @@ The authenticated Playwright commands refresh the fictional accounts and time-re
 - [Data model](./docs/diagrams/data-model.md)
 - [Security baseline](./docs/security.md)
 - [Accessibility and UX baseline](./docs/accessibility.md)
+- [Manual accessibility testing workflow](./docs/manual-accessibility-testing.md)
 - [Accessibility review](./docs/accessibility-review.md)
 - [Deployment runbook](./docs/deployment/sitehost.md)
 
