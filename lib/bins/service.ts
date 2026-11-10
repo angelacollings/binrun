@@ -10,8 +10,14 @@ export const supportedBinTypes = [
   'GREEN_WASTE_WHEELIE',
 ] as const satisfies readonly BinType[];
 
-const binTypeSchema = z.enum(supportedBinTypes);
-const collectionDaySchema = z.enum([
+export const binTypeLabels: Record<BinType, string> = {
+  GREEN_WASTE_WHEELIE: 'Green waste wheelie bin',
+  RECYCLING_BINS: 'Red and blue recycling bins',
+  RUBBISH_BAGS: 'Council prepaid rubbish bags',
+  RUBBISH_WHEELIE: 'Rubbish wheelie bin',
+};
+
+export const supportedCollectionDays = [
   'MONDAY',
   'TUESDAY',
   'WEDNESDAY',
@@ -19,7 +25,20 @@ const collectionDaySchema = z.enum([
   'FRIDAY',
   'SATURDAY',
   'SUNDAY',
-] as const satisfies readonly CollectionDay[]);
+] as const satisfies readonly CollectionDay[];
+
+export const collectionDayLabels: Record<CollectionDay, string> = {
+  FRIDAY: 'Friday',
+  MONDAY: 'Monday',
+  SATURDAY: 'Saturday',
+  SUNDAY: 'Sunday',
+  THURSDAY: 'Thursday',
+  TUESDAY: 'Tuesday',
+  WEDNESDAY: 'Wednesday',
+};
+
+const binTypeSchema = z.enum(supportedBinTypes);
+const collectionDaySchema = z.enum(supportedCollectionDays);
 
 const optionalText = (maxLength: number) =>
   z.preprocess((value) => {

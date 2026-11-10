@@ -131,6 +131,28 @@
   gap: 4px;
 }
 
+.propertyTitleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.propertyTitleRow > div {
+  display: grid;
+  gap: 4px;
+}
+
+.propertyBinCount {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: #edf2ee;
+  color: #53645e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .propertySummary h3 {
   font-size: 17px;
   line-height: 1.3;
@@ -165,6 +187,23 @@
   color: #1e6b57;
   font-size: 12px;
   line-height: 1.4;
+}
+
+.propertySummary a,
+.serviceSupport a {
+  color: #1e6b57;
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.main .propertyNote {
+  margin-top: 8px;
+  border-left: 3px solid #8bb4a6;
+  padding-left: 10px;
+  color: #53645e;
+  font-size: 14px;
 }
 
 .main .serviceSummary p {
@@ -211,6 +250,7 @@
 }
 
 .propertyForm input,
+.propertyForm select,
 .propertyForm textarea {
   width: 100%;
   border: 1px solid #d9e2dc;
@@ -221,7 +261,8 @@
   outline: none;
 }
 
-.propertyForm input {
+.propertyForm input,
+.propertyForm select {
   min-height: 42px;
   padding: 0 12px;
 }
@@ -233,9 +274,139 @@
 }
 
 .propertyForm input:focus,
+.propertyForm select:focus,
 .propertyForm textarea:focus {
   border-color: #1e6b57;
   box-shadow: 0 0 0 3px rgba(30, 107, 87, 0.18);
+}
+
+.managementDetails {
+  border: 1px solid #d8dfd9;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.managementDetails > summary {
+  min-height: 44px;
+  padding: 12px 14px;
+  color: #1e6b57;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.managementDetails > summary:focus-visible {
+  border-radius: 7px;
+  outline: 3px solid rgba(30, 107, 87, 0.22);
+  outline-offset: 2px;
+}
+
+.managementDetails[open] > summary {
+  border-bottom: 1px solid #d8dfd9;
+}
+
+.managementContent {
+  display: grid;
+  gap: 18px;
+  padding: 16px;
+}
+
+.managementHeader h4,
+.addBinSection h4,
+.serviceSupport h4 {
+  color: #17211d;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.main .managementHeader p,
+.main .serviceSupport p {
+  max-width: none;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.binList {
+  display: grid;
+  gap: 12px;
+}
+
+.binItem {
+  display: grid;
+  gap: 14px;
+  border: 1px solid #d8dfd9;
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.binSummary {
+  display: grid;
+  gap: 3px;
+}
+
+.binSummary h5 {
+  color: #17211d;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.main .binSummary p {
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.binForm {
+  display: grid;
+  gap: 12px;
+}
+
+.binForm label {
+  display: grid;
+  gap: 6px;
+}
+
+.binForm label > span {
+  color: #17211d;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.binForm input,
+.binForm select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d9e2dc;
+  border-radius: 6px;
+  padding: 0 12px;
+  background: #fbfcfa;
+  color: #263832;
+  font: inherit;
+  outline: none;
+}
+
+.binForm input:focus,
+.binForm select:focus {
+  border-color: #1e6b57;
+  box-shadow: 0 0 0 3px rgba(30, 107, 87, 0.18);
+}
+
+.binForm .buttonPrimary {
+  width: fit-content;
+}
+
+.addBinSection {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #d8dfd9;
+  padding-top: 16px;
+}
+
+.serviceSupport {
+  border-left: 3px solid #c78d2f;
+  padding-left: 12px;
 }
 
 .propertyForm input[aria-invalid='true'],

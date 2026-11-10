@@ -6,7 +6,8 @@ import { listUserProperties } from '@/lib/properties/service';
 
 import { Shell } from '../(app)/Shell';
 import styles from '../app.module.css';
-import { createProperty, deactivateProperty, updateProperty } from './actions';
+import { createProperty } from './actions';
+import { PropertyCard } from './PropertyCard';
 
 export const metadata: Metadata = {
   title: 'Customer dashboard',
@@ -15,6 +16,10 @@ export const metadata: Metadata = {
 
 type DashboardPageProps = {
   searchParams: Promise<{
+    binId?: string;
+    bins?: string;
+    edit?: string;
+    manage?: string;
     propertyField?: string;
     propertyId?: string;
     properties?: string;
@@ -22,7 +27,8 @@ type DashboardPageProps = {
 };
 
 const propertyMessages: Record<string, string> = {
-  'active-service': 'Cancel the active service or subscription before removing this property.',
+  'active-service':
+    'This property has an active service. Contact admin@binrun.co.nz for help changing or canceling it.',
   created: 'Property added.',
   deactivated: 'Property removed from active service.',
   invalid: 'Check the property details and try again.',
@@ -30,20 +36,18 @@ const propertyMessages: Record<string, string> = {
   updated: 'Property updated.',
 };
 
-function textValue(value: string | null | undefined) {
-  return value ?? '';
-}
+const binMessages: Record<string, string> = {
+  'confirm-remove': 'Confirm the bin removal and try again.',
+  created: 'Bin added.',
+  duplicate: 'That bin type is already recorded for this property.',
+  invalid: 'Check the bin details and try again.',
+  'not-found': 'Bin or property not found.',
+  removed: 'Bin removed.',
+  updated: 'Bin updated.',
+};
 
-function formatPackageStatus(value: string) {
-  return value.charAt(0) + value.slice(1).toLowerCase();
-}
-
-function formatServiceTiming(service: { frequency: string; serviceDay: string | null }) {
-  const cadence = service.frequency.toLowerCase().replace('_', ' ');
-  const day = service.serviceDay ? ` on ${service.serviceDay.toLowerCase()}` : '';
-
-  return `${cadence}${day}`;
-}
+const errorPropertyStatuses = new Set(['active-service', 'invalid', 'not-found']);
+const errorBinStatuses = new Set(['confirm-remove', 'duplicate', 'invalid', 'not-found']);
 
 function formatDateTime(value: Date | null | undefined) {
   if (!value) {
@@ -55,10 +59,6 @@ function formatDateTime(value: Date | null | undefined) {
     timeStyle: 'short',
     timeZone: 'Pacific/Auckland',
   }).format(value);
-}
-
-function propertyMessage(value: string | undefined) {
-  return value ? propertyMessages[value] : undefined;
 }
 
 function fieldError(
@@ -79,22 +79,38 @@ function fieldError(
   return undefined;
 }
 
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  return message ? (
+    <span className={styles.fieldError} id={id}>
+      {message}
+    </span>
+  ) : (
+    <span className={styles.fieldErrorPlaceholder} id={id} />
+  );
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const session = await requireCustomer();
-  const [{ properties: propertyStatus, propertyField, propertyId }, properties, dashboardSummary] =
-    await Promise.all([
-      searchParams,
-      listUserProperties(session.user.id),
-      getCustomerDashboardSummary(session.user.id),
-    ]);
-  const message = propertyMessage(propertyStatus);
+  const [params, properties, dashboardSummary] = await Promise.all([
+    searchParams,
+    listUserProperties(session.user.id),
+    getCustomerDashboardSummary(session.user.id),
+  ]);
+  const propertyMessage = params.properties ? propertyMessages[params.properties] : undefined;
+  const binMessage = params.bins ? binMessages[params.bins] : undefined;
+  const message = binMessage ?? propertyMessage;
+  const isError = params.bins
+    ? errorBinStatuses.has(params.bins)
+    : params.properties
+      ? errorPropertyStatuses.has(params.properties)
+      : false;
 
   return (
     <Shell>
       <section className={styles.dashboardHeader}>
         <p className={styles.eyebrow}>Customer dashboard</p>
         <h1>Welcome{session.user.name ? `, ${session.user.name}` : ''}</h1>
-        <p>Manage the service addresses BinRun should know about.</p>
+        <p>Review your services and keep each property and its bins up to date.</p>
       </section>
 
       <section className={styles.metricGrid} aria-label="Dashboard summary">
@@ -120,11 +136,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {message ? (
         <p
-          className={
-            propertyStatus === 'invalid' || propertyStatus === 'active-service'
-              ? styles.errorNotice
-              : styles.successNotice
-          }
+          className={isError ? styles.errorNotice : styles.successNotice}
+          role={isError ? 'alert' : 'status'}
         >
           {message}
         </p>
@@ -140,219 +153,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           {properties.length > 0 ? (
             <div className={styles.propertyList}>
               {properties.map((property) => (
-                <article className={styles.propertyItem} key={property.id}>
-                  <div className={styles.propertySummary}>
-                    <h3>{property.label || 'Service address'}</h3>
-                    <p>
-                      {property.addressLine1}
-                      {property.addressLine2 ? `, ${property.addressLine2}` : ''}
-                    </p>
-                    <p>
-                      {[property.suburb, property.city, property.postcode]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </p>
-                    {property.collectionNotes ? (
-                      <p className={styles.mutedText}>{property.collectionNotes}</p>
-                    ) : null}
-                    {property.services.length > 0 ? (
-                      <div className={styles.serviceSummaryList}>
-                        {property.services.map((service) => (
-                          <div className={styles.serviceSummary} key={service.id}>
-                            <span>{service.package.name}</span>
-                            <strong>{formatPackageStatus(service.status)}</strong>
-                            <p>{formatServiceTiming(service)}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className={styles.mutedText}>
-                        No package selected yet. Email admin@binrun.co.nz if you want help choosing.
-                      </p>
-                    )}
-                  </div>
-
-                  <form className={styles.propertyForm} action={updateProperty}>
-                    <input name="propertyId" type="hidden" value={property.id} />
-                    <div className={styles.fieldGrid}>
-                      <label>
-                        <span>Label</span>
-                        <input
-                          aria-describedby={`property-${property.id}-label-error`}
-                          aria-invalid={
-                            fieldError(
-                              propertyStatus,
-                              propertyId,
-                              propertyField,
-                              property.id,
-                              'label'
-                            )
-                              ? true
-                              : undefined
-                          }
-                          defaultValue={textValue(property.label)}
-                          maxLength={80}
-                          name="label"
-                          placeholder="Home"
-                        />
-                        <FieldError
-                          id={`property-${property.id}-label-error`}
-                          message={fieldError(
-                            propertyStatus,
-                            propertyId,
-                            propertyField,
-                            property.id,
-                            'label'
-                          )}
-                        />
-                      </label>
-                      <label>
-                        <span>Postcode</span>
-                        <input
-                          autoComplete="postal-code"
-                          defaultValue={textValue(property.postcode)}
-                          inputMode="numeric"
-                          maxLength={16}
-                          name="postcode"
-                        />
-                      </label>
-                    </div>
-                    <label>
-                      <span>Address line 1</span>
-                      <input
-                        aria-describedby={`property-${property.id}-addressLine1-error`}
-                        aria-invalid={
-                          fieldError(
-                            propertyStatus,
-                            propertyId,
-                            propertyField,
-                            property.id,
-                            'addressLine1'
-                          )
-                            ? true
-                            : undefined
-                        }
-                        autoComplete="address-line1"
-                        defaultValue={property.addressLine1}
-                        maxLength={120}
-                        name="addressLine1"
-                        required
-                      />
-                      <FieldError
-                        id={`property-${property.id}-addressLine1-error`}
-                        message={fieldError(
-                          propertyStatus,
-                          propertyId,
-                          propertyField,
-                          property.id,
-                          'addressLine1'
-                        )}
-                      />
-                    </label>
-                    <label>
-                      <span>Address line 2</span>
-                      <input
-                        autoComplete="address-line2"
-                        defaultValue={textValue(property.addressLine2)}
-                        maxLength={120}
-                        name="addressLine2"
-                      />
-                    </label>
-                    <div className={styles.fieldGrid}>
-                      <label>
-                        <span>Suburb</span>
-                        <input
-                          autoComplete="address-level2"
-                          defaultValue={textValue(property.suburb)}
-                          maxLength={80}
-                          name="suburb"
-                        />
-                      </label>
-                      <label>
-                        <span>City</span>
-                        <input
-                          aria-describedby={`property-${property.id}-city-error`}
-                          aria-invalid={
-                            fieldError(
-                              propertyStatus,
-                              propertyId,
-                              propertyField,
-                              property.id,
-                              'city'
-                            )
-                              ? true
-                              : undefined
-                          }
-                          autoComplete="address-level1"
-                          defaultValue={property.city}
-                          maxLength={80}
-                          name="city"
-                          required
-                        />
-                        <FieldError
-                          id={`property-${property.id}-city-error`}
-                          message={fieldError(
-                            propertyStatus,
-                            propertyId,
-                            propertyField,
-                            property.id,
-                            'city'
-                          )}
-                        />
-                      </label>
-                    </div>
-                    <label>
-                      <span>Collection notes</span>
-                      <textarea
-                        defaultValue={textValue(property.collectionNotes)}
-                        maxLength={500}
-                        name="collectionNotes"
-                        rows={3}
-                      />
-                    </label>
-                    <div className={styles.actionRow}>
-                      <button className={styles.buttonPrimary} type="submit">
-                        Save changes
-                      </button>
-                    </div>
-                  </form>
-                  <form className={styles.removeForm} action={deactivateProperty}>
-                    <input name="propertyId" type="hidden" value={property.id} />
-                    <label>
-                      <input
-                        aria-describedby={`property-${property.id}-confirmRemove-error`}
-                        aria-invalid={
-                          fieldError(
-                            propertyStatus,
-                            propertyId,
-                            propertyField,
-                            property.id,
-                            'confirmRemove'
-                          )
-                            ? true
-                            : undefined
-                        }
-                        name="confirmRemove"
-                        required
-                        type="checkbox"
-                      />
-                      <span>Confirm removal from active service</span>
-                    </label>
-                    <FieldError
-                      id={`property-${property.id}-confirmRemove-error`}
-                      message={fieldError(
-                        propertyStatus,
-                        propertyId,
-                        propertyField,
-                        property.id,
-                        'confirmRemove'
-                      )}
-                    />
-                    <button className={styles.buttonDanger} type="submit">
-                      Remove
-                    </button>
-                  </form>
-                </article>
+                <PropertyCard
+                  binId={params.binId}
+                  binStatus={params.bins}
+                  editOpen={params.edit === property.id}
+                  key={property.id}
+                  manageBinsOpen={params.manage === property.id}
+                  property={property}
+                  propertyField={params.propertyField}
+                  propertyId={params.propertyId}
+                  propertyStatus={params.properties}
+                />
               ))}
             </div>
           ) : (
@@ -374,7 +185,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <input
                 aria-describedby="new-property-addressLine1-error"
                 aria-invalid={
-                  fieldError(propertyStatus, propertyId, propertyField, 'new', 'addressLine1')
+                  fieldError(
+                    params.properties,
+                    params.propertyId,
+                    params.propertyField,
+                    'new',
+                    'addressLine1'
+                  )
                     ? true
                     : undefined
                 }
@@ -386,9 +203,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <FieldError
                 id="new-property-addressLine1-error"
                 message={fieldError(
-                  propertyStatus,
-                  propertyId,
-                  propertyField,
+                  params.properties,
+                  params.propertyId,
+                  params.propertyField,
                   'new',
                   'addressLine1'
                 )}
@@ -418,7 +235,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <input
                 aria-describedby="new-property-city-error"
                 aria-invalid={
-                  fieldError(propertyStatus, propertyId, propertyField, 'new', 'city')
+                  fieldError(
+                    params.properties,
+                    params.propertyId,
+                    params.propertyField,
+                    'new',
+                    'city'
+                  )
                     ? true
                     : undefined
                 }
@@ -430,7 +253,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               />
               <FieldError
                 id="new-property-city-error"
-                message={fieldError(propertyStatus, propertyId, propertyField, 'new', 'city')}
+                message={fieldError(
+                  params.properties,
+                  params.propertyId,
+                  params.propertyField,
+                  'new',
+                  'city'
+                )}
               />
             </label>
             <label>
@@ -444,15 +273,5 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </aside>
       </section>
     </Shell>
-  );
-}
-
-function FieldError({ id, message }: { id: string; message: string | undefined }) {
-  return message ? (
-    <span className={styles.fieldError} id={id}>
-      {message}
-    </span>
-  ) : (
-    <span className={styles.fieldErrorPlaceholder} id={id} />
   );
 }
