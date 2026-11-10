@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 
 import styles from '../page.module.css';
 import { publicServicePackages } from '@/lib/service-packages';
+
+export const metadata: Metadata = {
+  title: 'Pricing',
+  description: 'Compare BinRun wheelie bin set-out, return, and cleaning service packages.',
+};
 
 const packagePrices: Record<string, string> = {
   ONE_OFF_CLEAN: 'Quote',

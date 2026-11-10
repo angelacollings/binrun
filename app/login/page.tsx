@@ -1,9 +1,15 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 
 import { homePathForRole, safeRelativePath } from '@/lib/auth/routes';
 import { getSession } from '@/lib/auth/roles';
 
 import { CustomerLoginForm } from '../(auth)/CustomerLoginForm';
+
+export const metadata: Metadata = {
+  title: 'Sign in',
+  description: 'Sign in to manage your BinRun service addresses and upcoming visits.',
+};
 
 type LoginPageProps = {
   searchParams: Promise<{

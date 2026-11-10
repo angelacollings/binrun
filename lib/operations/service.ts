@@ -1,17 +1,7 @@
 import type { ServiceVisitStatus } from '@prisma/client';
 
 import { prisma } from '../prisma';
-
-const allowedTransitions: Record<ServiceVisitStatus, ServiceVisitStatus[]> = {
-  BLOCKED: ['IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED', 'CANCELED'],
-  CANCELED: [],
-  COMPLETED: [],
-  FAILED: [],
-  IN_PROGRESS: ['COMPLETED', 'BLOCKED', 'SKIPPED', 'FAILED', 'MISSED', 'CANCELED'],
-  MISSED: ['IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED', 'CANCELED'],
-  PLANNED: ['IN_PROGRESS', 'COMPLETED', 'BLOCKED', 'SKIPPED', 'FAILED', 'MISSED', 'CANCELED'],
-  SKIPPED: [],
-};
+import { allowedServiceVisitTransitions } from './status';
 
 export class InvalidServiceVisitTransitionError extends Error {
   constructor(currentStatus: ServiceVisitStatus, nextStatus: ServiceVisitStatus) {
@@ -106,7 +96,10 @@ export async function updateServiceVisitStatus(
     return null;
   }
 
-  if (visit.status !== nextStatus && !allowedTransitions[visit.status].includes(nextStatus)) {
+  if (
+    visit.status !== nextStatus &&
+    !allowedServiceVisitTransitions[visit.status].includes(nextStatus)
+  ) {
     throw new InvalidServiceVisitTransitionError(visit.status, nextStatus);
   }
 

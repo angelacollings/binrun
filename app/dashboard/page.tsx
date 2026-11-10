@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { requireCustomer } from '@/lib/auth/roles';
 import { getCustomerDashboardSummary } from '@/lib/dashboard/service';
 import { listUserProperties } from '@/lib/properties/service';
@@ -5,6 +7,11 @@ import { listUserProperties } from '@/lib/properties/service';
 import { Shell } from '../(app)/Shell';
 import styles from '../app.module.css';
 import { createProperty, deactivateProperty, updateProperty } from './actions';
+
+export const metadata: Metadata = {
+  title: 'Customer dashboard',
+  description: 'Manage your BinRun properties and review upcoming service information.',
+};
 
 type DashboardPageProps = {
   searchParams: Promise<{

@@ -1,7 +1,14 @@
 import styles from './page.module.css';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
 import { publicServicePackages } from '@/lib/service-packages';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Bin day? Sorted. | BinRun',
+  },
+};
 
 const packagePrices: Record<string, string> = {
   ONE_OFF_CLEAN: 'Quote',

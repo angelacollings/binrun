@@ -27,6 +27,7 @@
 
 .main {
   width: min(100%, 1180px);
+  margin-inline: auto;
   padding: 48px 32px;
 }
 
@@ -514,6 +515,14 @@
 .runStatusMessage {
   grid-column: 1 / -1;
   margin: 0;
+}
+
+.main .runStatusComplete {
+  align-self: center;
+  color: #53645e;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.4;
 }
 
 .runStatusForm input:focus,

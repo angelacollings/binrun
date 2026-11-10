@@ -1,9 +1,15 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 
 import { homePathForRole } from '@/lib/auth/routes';
 import { getSession } from '@/lib/auth/roles';
 
 import { ServiceSignupForm } from '../(auth)/ServiceSignupForm';
+
+export const metadata: Metadata = {
+  title: 'Start service',
+  description: 'Create a BinRun account and request service for your Whangarei property.',
+};
 
 type RegisterPageProps = {
   searchParams: Promise<{
