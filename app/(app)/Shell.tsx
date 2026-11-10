@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import Image from 'next/image';
 
 import { logout } from '../(auth)/actions';
+import { Brand } from '../Brand';
 import styles from '../app.module.css';
 
 type ShellProps = {
@@ -12,9 +12,7 @@ export function Shell({ children }: ShellProps) {
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
-        <div className={styles.brand}>
-          <Image alt="BinRun" height={64} src="/brand/binrun-logo.svg" width={238} />
-        </div>
+        <Brand />
         <form action={logout}>
           <button className={styles.button} type="submit">
             Sign out

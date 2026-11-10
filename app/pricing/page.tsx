@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 
 import styles from '../page.module.css';
+import { Brand } from '../Brand';
 import { publicServicePackages } from '@/lib/service-packages';
 
 export const metadata: Metadata = {
@@ -20,9 +21,7 @@ export default function PricingPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/">
-          <Image alt="BinRun" height={64} src="/brand/binrun-logo.svg" width={238} />
-        </Link>
+        <Brand />
         <nav aria-label="Primary navigation">
           <Link href="/">Home</Link>
           <Link href="/pricing">Pricing</Link>
