@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 import styles from './brand.module.css';
 
@@ -9,7 +10,7 @@ type BrandProps = {
 export function Brand({ className }: BrandProps) {
   return (
     <Link className={`${styles.brand}${className ? ` ${className}` : ''}`} href="/">
-      <span className={styles.mark} aria-hidden="true" />
+      <Image alt="" aria-hidden="true" height={30} src="/brand/binrun-mark.svg" width={40} />
       <span>BinRun</span>
     </Link>
   );

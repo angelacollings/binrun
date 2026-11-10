@@ -9,3 +9,21 @@ test('renders BinRun heading', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'BinRun' })).toBeVisible();
   await expect(page.getByText('Bin day? Sorted.')).toBeVisible();
 });
+
+test('publishes branded browser and social metadata', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /icon\.svg/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /opengraph-image/
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    'content',
+    'summary_large_image'
+  );
+
+  const socialImage = await page.request.get('/opengraph-image');
+  expect(socialImage.ok()).toBe(true);
+  expect(socialImage.headers()['content-type']).toContain('image/png');
+});
