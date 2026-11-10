@@ -46,15 +46,15 @@ extra assistance. Update it when a page, form, workflow, or visual pattern is ad
 
 ## Core Flow Review
 
-| Flow                   | Status    | Required checks                                                      |
-| ---------------------- | --------- | -------------------------------------------------------------------- |
-| Launch page            | Built     | Heading, copy, mobile layout, colour contrast.                       |
-| Login/register         | Built     | Labelled email/address fields, safe errors, keyboard flow.           |
-| Property management    | Built     | Manual address entry, validation, confirmation, and empty states.    |
-| Customer bin editing   | API only  | Add accessible customer UI before treating this as a completed flow. |
-| Customer dashboard     | Built     | Service timing, status readability, and mobile scanning.             |
-| Checkout               | Not built | Clear cost, cancellation path, success/failure states.               |
-| Worker/admin run board | Built     | Dense operational views remain keyboard navigable and readable.      |
+| Flow                   | Status    | Required checks                                                   |
+| ---------------------- | --------- | ----------------------------------------------------------------- |
+| Launch page            | Built     | Heading, copy, mobile layout, colour contrast.                    |
+| Login/register         | Built     | Labelled email/address fields, safe errors, keyboard flow.        |
+| Property management    | Built     | Manual address entry, validation, confirmation, and empty states. |
+| Customer bin editing   | Built     | Labels, disclosure controls, validation, and keyboard operation.  |
+| Customer dashboard     | Built     | Service timing, status readability, and mobile scanning.          |
+| Checkout               | Not built | Clear cost, cancellation path, success/failure states.            |
+| Worker/admin run board | Built     | Dense operational views remain keyboard navigable and readable.   |
 
 ## Pre-Launch Review
 

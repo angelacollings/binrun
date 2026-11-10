@@ -38,6 +38,18 @@ const propertySelect = {
   active: true,
   addressLine1: true,
   addressLine2: true,
+  bins: {
+    orderBy: {
+      type: 'asc',
+    },
+    select: {
+      collectionDay: true,
+      id: true,
+      label: true,
+      maxQuantity: true,
+      type: true,
+    },
+  },
   city: true,
   collectionNotes: true,
   createdAt: true,

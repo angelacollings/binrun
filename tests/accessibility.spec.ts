@@ -35,6 +35,12 @@ test('customer dashboard has no automatically detectable WCAG A or AA violations
   await signIn(page, 'angela@example.com');
   await expect(page).toHaveURL(/\/dashboard$/);
   await expectNoA11yViolations(page);
+
+  await page
+    .getByRole('article', { name: 'Home', exact: true })
+    .getByText('Manage bins', { exact: true })
+    .click();
+  await expectNoA11yViolations(page);
 });
 
 test('worker run board has no automatically detectable WCAG A or AA violations', async ({

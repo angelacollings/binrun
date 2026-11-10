@@ -38,6 +38,7 @@ The screenshots below use fictional local seed data.
 - Customer, worker, and administrator roles with protected routes
 - Package selection during customer signup
 - Customer property creation, editing, and soft deactivation
+- Customer bin creation, editing, and removal from the property dashboard
 - Ownership-protected property and bin APIs
 - Customer dashboard summaries for properties, services, bins, and upcoming visits
 - Worker and administrator run boards with controlled service-visit status transitions
@@ -50,7 +51,7 @@ The screenshots below use fictional local seed data.
 ### Partially implemented
 
 - **Subscriptions:** the schema and dashboard query support exist, but customer-facing status, checkout, billing management, and provider synchronization do not.
-- **Bin management:** the API and data model exist, but customers do not yet have a bin-management screen.
+- **Service management:** customers can review package and bin details, but package changes and cancellation still use assisted support.
 - **Collection scheduling:** service areas, schedules, and visits are modelled and displayed, but production visit generation is not automated.
 - **Administration:** workers and administrators can update service visits, but broader customer, package, and schedule administration is still planned.
 - **Accessibility:** automated WCAG A/AA checks and an initial manual review are documented; complete keyboard, native zoom, and screen-reader reviews remain outstanding.
@@ -60,7 +61,7 @@ The screenshots below use fictional local seed data.
 - Stripe checkout, webhooks, billing portal, and subscription lifecycle management
 - Password recovery and email verification
 - Email notifications
-- Customer-facing bin and package management
+- Customer-facing package changes and cancellation
 - Automated generation of service visits from collection schedules
 - Expanded administration and operational reporting
 
@@ -267,7 +268,7 @@ The authenticated Playwright commands refresh the fictional accounts and time-re
 The next portfolio-focused priorities are:
 
 1. Complete native 200% zoom, screen-reader, and end-to-end keyboard reviews.
-2. Add browser coverage for safe customer property mutations.
+2. Add browser coverage for safe customer property creation and deactivation.
 3. Add integration coverage for service creation and authenticated API route behavior.
 4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
 

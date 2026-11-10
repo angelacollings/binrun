@@ -5,6 +5,14 @@ import { redirect } from 'next/navigation';
 
 import { requireCustomer } from '@/lib/auth/roles';
 import {
+  createBinSchema,
+  createPropertyBin,
+  DuplicateBinTypeError,
+  removePropertyBin,
+  updateBinSchema,
+  updatePropertyBin,
+} from '@/lib/bins/service';
+import {
   ActivePropertyServiceError,
   createPropertySchema,
   createUserProperty,
@@ -40,6 +48,39 @@ function propertyIdFromForm(formData: FormData) {
   return propertyId;
 }
 
+function binIdFromForm(formData: FormData) {
+  const binId = formValue(formData, 'binId')?.trim();
+
+  if (!binId) {
+    redirect('/dashboard?bins=invalid');
+  }
+
+  return binId;
+}
+
+function binInputFromForm(formData: FormData) {
+  return {
+    collectionDay: formValue(formData, 'collectionDay') || null,
+    label: formValue(formData, 'label'),
+    maxQuantity: formValue(formData, 'maxQuantity'),
+    type: formValue(formData, 'type'),
+  };
+}
+
+function binRedirect(status: string, propertyId?: string, binId?: string): never {
+  const params = new URLSearchParams({ bins: status });
+
+  if (propertyId) {
+    params.set('manage', propertyId);
+  }
+
+  if (binId) {
+    params.set('binId', binId);
+  }
+
+  redirect(`/dashboard?${params.toString()}`);
+}
+
 function invalidPropertyRedirect(field: string, propertyId?: string): never {
   const params = new URLSearchParams({
     propertyField: field,
@@ -48,9 +89,92 @@ function invalidPropertyRedirect(field: string, propertyId?: string): never {
 
   if (propertyId) {
     params.set('propertyId', propertyId);
+
+    if (propertyId !== 'new') {
+      params.set('edit', propertyId);
+    }
   }
 
   redirect(`/dashboard?${params.toString()}`);
+}
+
+export async function createBin(formData: FormData) {
+  const session = await requireCustomer();
+  const propertyId = propertyIdFromForm(formData);
+  const parsedInput = createBinSchema.safeParse(binInputFromForm(formData));
+
+  if (!parsedInput.success) {
+    binRedirect('invalid', propertyId);
+  }
+
+  try {
+    const bin = await createPropertyBin(session.user.id, propertyId, parsedInput.data);
+
+    if (!bin) {
+      binRedirect('not-found');
+    }
+  } catch (error) {
+    if (error instanceof DuplicateBinTypeError) {
+      binRedirect('duplicate', propertyId);
+    }
+
+    throw error;
+  }
+
+  revalidatePath('/dashboard');
+  binRedirect('created', propertyId);
+}
+
+export async function updateBin(formData: FormData) {
+  const session = await requireCustomer();
+  const propertyId = propertyIdFromForm(formData);
+  const binId = binIdFromForm(formData);
+  const binInput = binInputFromForm(formData);
+  const parsedInput = updateBinSchema.safeParse({
+    collectionDay: binInput.collectionDay,
+    label: binInput.label,
+    maxQuantity: binInput.maxQuantity,
+  });
+
+  if (!parsedInput.success) {
+    binRedirect('invalid', propertyId, binId);
+  }
+
+  try {
+    const bin = await updatePropertyBin(session.user.id, propertyId, binId, parsedInput.data);
+
+    if (!bin) {
+      binRedirect('not-found');
+    }
+  } catch (error) {
+    if (error instanceof DuplicateBinTypeError) {
+      binRedirect('duplicate', propertyId, binId);
+    }
+
+    throw error;
+  }
+
+  revalidatePath('/dashboard');
+  binRedirect('updated', propertyId, binId);
+}
+
+export async function removeBin(formData: FormData) {
+  const session = await requireCustomer();
+  const propertyId = propertyIdFromForm(formData);
+  const binId = binIdFromForm(formData);
+
+  if (formData.get('confirmRemoveBin') !== 'on') {
+    binRedirect('confirm-remove', propertyId, binId);
+  }
+
+  const removed = await removePropertyBin(session.user.id, propertyId, binId);
+
+  if (!removed) {
+    binRedirect('not-found');
+  }
+
+  revalidatePath('/dashboard');
+  binRedirect('removed', propertyId);
 }
 
 function firstIssueField(error: { issues: { path: PropertyKey[] }[] }) {

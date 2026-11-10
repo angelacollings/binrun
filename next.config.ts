@@ -5,6 +5,7 @@ import { assertNoPublicRuntimeSecrets } from './lib/env';
 assertNoPublicRuntimeSecrets();
 
 const nextConfig: NextConfig = {
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   output: 'standalone',
   async headers() {
     return [
