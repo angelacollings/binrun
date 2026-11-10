@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { Brand } from '../Brand';
 import { requestLogin } from './actions';
 import styles from '../auth.module.css';
 
@@ -19,9 +20,7 @@ export function CustomerLoginForm({ callbackUrl, error }: CustomerLoginFormProps
   return (
     <main className={styles.authPage}>
       <section className={styles.authHeader} aria-labelledby="login-heading">
-        <Link className={styles.brandLink} href="/">
-          BinRun
-        </Link>
+        <Brand />
         <p className={styles.eyebrow}>Secure sign in</p>
         <h1 id="login-heading">Sign in to BinRun</h1>
         <p>Use your BinRun email and password.</p>

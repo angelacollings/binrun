@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import { publicServicePackages } from '@/lib/service-packages';
+import { Brand } from './Brand';
 
 export const metadata: Metadata = {
   title: {
@@ -20,10 +21,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/">
-          <span className={styles.brandMark} aria-hidden="true" />
-          <span>BinRun</span>
-        </Link>
+        <Brand />
         <nav aria-label="Primary navigation">
           <Link href="#how-it-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>

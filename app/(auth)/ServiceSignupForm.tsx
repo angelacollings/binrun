@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { Brand } from '../Brand';
 import { requestServiceSignup } from './actions';
 import styles from '../auth.module.css';
 import { signupServicePackages } from '@/lib/service-packages';
@@ -19,9 +20,7 @@ export function ServiceSignupForm({ error }: ServiceSignupFormProps) {
   return (
     <main className={styles.signupPage}>
       <section className={styles.signupIntro} aria-labelledby="signup-heading">
-        <Link className={styles.brandLink} href="/">
-          BinRun
-        </Link>
+        <Brand />
         <p className={styles.eyebrow}>Start service</p>
         <h1 id="signup-heading">Set up your bin run</h1>
         <p>

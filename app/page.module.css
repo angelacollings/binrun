@@ -1,24 +1,23 @@
 .page {
-  --paper: #f7f6f1;
-  --surface: #fffefa;
-  --surface-muted: #ece9df;
-  --ink: #151917;
-  --ink-soft: #313a35;
-  --muted: #5f6863;
-  --line: #ddd8cb;
-  --forest: #183f32;
-  --forest-strong: #0f2d24;
-  --forest-soft: #e1ebe4;
-  --brass: #b9812f;
-  --brass-soft: #f5ead8;
-  --shadow: 0 22px 70px rgba(21, 25, 23, 0.12);
+  --paper: var(--color-paper);
+  --surface: var(--color-surface);
+  --surface-muted: var(--color-surface-muted);
+  --ink: var(--color-ink);
+  --ink-soft: var(--color-ink-soft);
+  --muted: var(--color-muted);
+  --line: var(--color-line);
+  --forest: var(--color-forest);
+  --forest-strong: var(--color-forest-strong);
+  --forest-soft: var(--color-forest-soft);
+  --brass: var(--color-brass);
+  --brass-soft: var(--color-brass-soft);
+  --shadow: var(--shadow-card);
 
   min-height: 100dvh;
   background:
     linear-gradient(180deg, rgba(255, 254, 250, 0.92) 0%, rgba(247, 246, 241, 0.98) 42%),
     var(--paper);
   color: var(--ink);
-  font-family: var(--font-geist-sans, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif);
 }
 
 .header {
@@ -35,48 +34,6 @@
   border-bottom: 1px solid rgba(21, 25, 23, 0.1);
   background: rgba(247, 246, 241, 0.88);
   backdrop-filter: blur(18px);
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--ink);
-  font-size: 23px;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.brandMark {
-  position: relative;
-  width: 34px;
-  height: 20px;
-  border-bottom: 3px solid var(--forest);
-  border-left: 3px solid var(--forest);
-  border-radius: 0 0 0 10px;
-}
-
-.brandMark::before,
-.brandMark::after {
-  position: absolute;
-  border-radius: 999px;
-  content: '';
-}
-
-.brandMark::before {
-  right: -2px;
-  bottom: -6px;
-  width: 9px;
-  height: 9px;
-  background: var(--brass);
-}
-
-.brandMark::after {
-  top: 0;
-  left: 5px;
-  width: 18px;
-  height: 3px;
-  background: var(--forest);
 }
 
 .header nav {
@@ -559,15 +516,6 @@
 @media (max-width: 620px) {
   .header {
     padding: 14px 18px;
-  }
-
-  .brand {
-    font-size: 20px;
-  }
-
-  .brandMark {
-    width: 30px;
-    height: 18px;
   }
 
   .headerButton {
