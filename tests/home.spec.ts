@@ -27,3 +27,11 @@ test('publishes branded browser and social metadata', async ({ page }) => {
   expect(socialImage.ok()).toBe(true);
   expect(socialImage.headers()['content-type']).toContain('image/png');
 });
+
+test('reports a healthy database without exposing connection details', async ({ request }) => {
+  const response = await request.get('/api/health/db');
+
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('application/json');
+  expect(await response.json()).toEqual({ ok: true });
+});

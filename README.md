@@ -246,6 +246,7 @@ The test suite currently covers:
 - Seed-data structure and Better Auth sign-in
 - Service-visit authorization, allowed transitions, audit fields, and completion timestamps
 - Public login, registration, pricing, and homepage browser smoke tests
+- Database health, full customer signup, and property creation/deactivation browser flows
 - Authenticated customer and worker screens with role-based route denial
 - Automated WCAG A/AA checks for representative public, customer, and worker pages
 
@@ -269,9 +270,8 @@ The authenticated Playwright commands refresh the fictional accounts and time-re
 The next portfolio-focused priorities are:
 
 1. Complete native 200% zoom, screen-reader, and end-to-end keyboard reviews.
-2. Add browser coverage for safe customer property creation and deactivation.
-3. Add integration coverage for service creation and authenticated API route behavior.
-4. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
+2. Add integration coverage for service creation and authenticated API route behavior.
+3. Keep documentation and GitHub issues synchronized with implemented routes and workflows.
 
 Payment, notification, and broader product workflows will follow as product development continues; they are not required to understand or run the current application.
 
