@@ -1,6 +1,25 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { createPrismaTestClient } from './integration/prisma-test-client';
+
 const localSeedPassword = 'BinRun-local-2026';
+
+test.afterAll(async () => {
+  const prisma = createPrismaTestClient();
+
+  try {
+    await prisma.property.deleteMany({
+      where: {
+        label: 'Smoke test property',
+        user: {
+          email: 'angela@example.com',
+        },
+      },
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+});
 
 async function signIn(page: Page, email: string) {
   await page.goto('/login');
@@ -73,6 +92,40 @@ test('customer can review and update bins for an owned property', async ({ page 
     page.getByRole('article', { name: 'Home', exact: true }).getByText('3 bins')
   ).toBeVisible();
   await expect(page.getByRole('article', { name: 'Spare wheelie' })).toHaveCount(0);
+
+  const restoredHomeProperty = page.getByRole('article', { name: 'Home', exact: true });
+  await restoredHomeProperty.getByLabel('Label').first().fill('Red and blue recycling bins');
+  await restoredHomeProperty.getByRole('button', { name: 'Save bin' }).first().click();
+  await expect(page.getByRole('status')).toHaveText('Bin updated.');
+});
+
+test('customer can add and safely deactivate a property without an active service', async ({
+  page,
+}) => {
+  await signIn(page, 'angela@example.com');
+
+  const addPropertyPanel = page.locator('details').filter({
+    has: page.getByRole('heading', { name: 'Add property' }),
+  });
+  await addPropertyPanel.getByRole('heading', { name: 'Add property' }).click();
+  await addPropertyPanel.getByLabel('Label').fill('Smoke test property');
+  await addPropertyPanel.getByLabel('Address line 1').fill('49 Portfolio Place');
+  await addPropertyPanel.getByLabel('Suburb').fill('Avenues');
+  await addPropertyPanel.getByLabel('Postcode').fill('0110');
+  await addPropertyPanel.getByRole('button', { name: 'Add property' }).click();
+
+  await expect(page).toHaveURL(/properties=created/);
+  await expect(page.getByRole('status')).toHaveText('Property added.');
+
+  const property = page.getByRole('article', { name: 'Smoke test property' });
+  await expect(property.getByText('49 Portfolio Place')).toBeVisible();
+  await property.getByText('Edit property details').click();
+  await property.getByLabel('Confirm property removal').check();
+  await property.getByRole('button', { name: 'Remove property' }).click();
+
+  await expect(page).toHaveURL(/properties=deactivated/);
+  await expect(page.getByRole('status')).toHaveText('Property removed from active service.');
+  await expect(page.getByRole('article', { name: 'Smoke test property' })).toHaveCount(0);
 });
 
 test('worker signs in, sees the run board, and cannot access admin routes', async ({ page }) => {
