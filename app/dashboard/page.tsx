@@ -104,6 +104,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     : params.properties
       ? errorPropertyStatuses.has(params.properties)
       : false;
+  const addPropertyOpen = params.properties === 'invalid' && params.propertyId === 'new';
 
   return (
     <Shell>
@@ -171,10 +172,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           )}
         </div>
 
-        <aside className={styles.panel}>
-          <div className={styles.panelHeader}>
+        <details className={`${styles.panel} ${styles.addPropertyPanel}`} open={addPropertyOpen}>
+          <summary className={styles.panelHeader}>
             <h2>Add property</h2>
-          </div>
+            <span className={styles.disclosureIcon} aria-hidden="true" />
+          </summary>
           <form className={styles.propertyForm} action={createProperty}>
             <label>
               <span>Label</span>
@@ -270,7 +272,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Add property
             </button>
           </form>
-        </aside>
+        </details>
       </section>
     </Shell>
   );

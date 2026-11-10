@@ -21,6 +21,13 @@ test('customer signs in, sees owned dashboard data, and cannot access admin rout
   await expect(page.getByRole('heading', { name: 'Active properties' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
 
+  const addPropertyPanel = page.locator('details').filter({
+    has: page.getByRole('heading', { name: 'Add property' }),
+  });
+  await expect(addPropertyPanel).not.toHaveAttribute('open');
+  await addPropertyPanel.getByRole('heading', { name: 'Add property' }).click();
+  await expect(addPropertyPanel.getByLabel('Address line 1')).toBeVisible();
+
   await page.goto('/admin');
 
   await expect(page).toHaveURL(/\/dashboard$/);
