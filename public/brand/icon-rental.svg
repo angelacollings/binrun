@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
   <title id="title">Rental friendly</title>
   <circle cx="32" cy="32" r="30" fill="#fbeae8" />
-  <path d="M19 27h26v22H19V27Zm4-8h18v8H23v-8Z" fill="#a43c3e" />
-  <circle cx="39" cy="38" r="3" fill="#fffdf9" />
+  <path d="M19 27h26v22H19V27Zm4-8h18v8H23v-8Z" fill="#8d261d" />
+  <circle cx="39" cy="38" r="3" fill="#fffefa" />
 </svg>
